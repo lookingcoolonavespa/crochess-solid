@@ -1,5 +1,39 @@
-nav {
-    position: fixed;
-    height: 3em;
-    padding: 1em 2em;
+@use "./mixins";
+@use "./variables";
+
+:root[color-mode="light"] {
+  @include mixins.getThemeColors(variables.$colors-light);
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html,
+body,
+ul {
+  padding: 0;
+  margin: 0;
+}
+
+html,
+body,
+#root {
+  height: 100%;
+}
+
+body {
+  color: var(--text);
+  font-family: "Merriweather", serif;
+}
+
+#root {
+  background: var(--background);
+  display: flex;
+  flex-direction: column;
+}
+
+#modal {
+  padding: 0;
+  display: flex;
 }

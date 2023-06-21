@@ -1,0 +1,39 @@
+.main {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-direction: column;
+  flex: 1;
+}
+
+.tabbed-content {
+  display: grid;
+  row-gap: 2em;
+  width: clamp(300px, 50%, 600px);
+  margin-bottom: 4em;
+}
+
+.tabs {
+  ul {
+    list-style: none;
+    display: flex;
+    column-gap: 1em;
+  }
+
+  li {
+    cursor: pointer;
+    padding: 0 0.1em 0.3em 0.1em;
+  }
+
+  li.inactive {
+    opacity: 0.5;
+
+    &:hover {
+      opacity: 1;
+    }
+  }
+
+  li:not(.inactive) {
+    border-bottom: 3px solid var(--main-accent);
+  }
+}

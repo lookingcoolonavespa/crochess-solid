@@ -1,5 +1,5 @@
 import { JSX } from "solid-js";
-import styles from "../styles/FlatBtn.module.scss";
+import styles from "../../../styles/FlatBtn.module.scss";
 
 interface FlatBtnProps {
   className?: string;
@@ -13,7 +13,7 @@ interface FlatBtnProps {
   icon?: { src: string; alt: string };
 }
 
-export default function FlatBtn({
+export function FlatBtn({
   className,
   type,
   text,

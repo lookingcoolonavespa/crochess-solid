@@ -1,11 +1,9 @@
-import type { Component } from "solid-js";
+import { Component, createEffect } from "solid-js";
 
-import logo from "./logo.svg";
-import styles from "./App.module.css";
-import { GameGrid } from "./components/GameGrid/GameGrid";
+import { Home } from "./components/Home";
 
 const App: Component = () => {
-  return <GameGrid active={true} createCustomGame={() => {}} />;
+  return <Home />;
 };
 
 export default App;

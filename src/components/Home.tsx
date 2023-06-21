@@ -1,9 +1,16 @@
 import { useNavigate } from "@solidjs/router";
-import { createEffect, createSignal, useContext } from "solid-js";
+import { createEffect, createSignal, JSX, Show, useContext } from "solid-js";
 import { UserContext } from "../utils/contexts/UserContext";
 import { GameGrid } from "./GameGrid/GameGrid";
-import { Layout } from "./Layout";
 import styles from "../styles/Home.module.scss";
+import { Modal } from "./ui-elements/Modal";
+import useInputValues from "../hooks/useInputValues";
+import { GameSeekColors } from "../types/types";
+import { toMilliseconds } from "../utils/time";
+import { createGameSeek } from "../utils/game";
+import { Layout } from "./ui-elements/Layout";
+import { Popup } from "./ui-elements/Popup";
+import { OPP_COLOR } from "../constants";
 
 export const Home = () => {
   const { user, socket } = useContext(UserContext) || {
@@ -12,24 +19,24 @@ export const Home = () => {
   };
   const [popup, setPopup] = createSignal(false);
   const [error, setError] = createSignal("");
-  // const {
-  //   inputValues: popupInputValues,
-  //   handleInputChange,
-  //   handleSelectChange,
-  //   resetInputValues,
-  // } = useInputValues<{
-  //   increment: number;
-  //   time_unit: "seconds" | "minutes" | "hours";
-  //   color: seekColor;
-  //   time: number;
-  // }>({
-  //   increment: 0,
-  //   time_unit: "minutes",
-  //   color: "random",
-  //   time: 5,
-  // });
-  // const [activeTab, setActiveTab] = useState("Create a game");
-  //
+  const [activeTabIndex, setActiveTabIndex] = createSignal(0);
+
+  const {
+    inputValues: popupInputValues,
+    handleInputChange,
+    handleSelectChange,
+    resetInputValues,
+  } = useInputValues<{
+    increment: number;
+    time_unit: "seconds" | "minutes" | "hours";
+    color: GameSeekColors;
+    time: number;
+  }>({
+    increment: 0,
+    time_unit: "minutes",
+    color: "random",
+    time: 5,
+  });
   const navigate = useNavigate();
 
   createEffect(function listenToAcceptedGameSeeks() {
@@ -53,10 +60,22 @@ export const Home = () => {
     };
   });
 
-  // function moveToTab(e: React.MouseEvent<HTMLElement>) {
-  //   if (!e.currentTarget.dataset.tab) return;
-  //   setActiveTab(e.currentTarget.dataset.tab);
-  // }
+  function closePopup() {
+    resetInputValues();
+    setPopup(false);
+  }
+  function showPopup() {
+    setPopup(true);
+  }
+
+  const moveToTab: JSX.EventHandler<HTMLLIElement, MouseEvent> = function (e) {
+    if (!e.currentTarget.dataset.tab) return;
+    let elementPosition = Array.from(e.currentTarget.children).findIndex(
+      (el) => el === e.currentTarget
+    );
+    if (elementPosition == -1) return;
+    setActiveTabIndex(elementPosition);
+  };
   return (
     <>
       <Layout className={styles.main}>
@@ -64,30 +83,35 @@ export const Home = () => {
           <nav class={styles.tabs}>
             <ul>
               <li
-                class={activeTab !== "Create a game" ? styles.inactive : ""}
+                class={activeTabIndex() !== 0 ? styles.inactive : ""}
                 onClick={moveToTab}
                 data-tab="Create a game"
               >
                 <span>Create a game</span>
               </li>
               <li
-                class={activeTab !== "Game list" ? styles.inactive : ""}
+                class={activeTabIndex() !== 1 ? styles.inactive : ""}
                 onClick={moveToTab}
                 data-tab="Game list"
               >
                 <span>Game list</span>
               </li>
+              <li
+                class={styles.inactive}
+                onClick={() => {
+                  if (!user) return;
+                  // initPlayEngine(socket!, user);
+                }}
+              >
+                Play against engine
+              </li>
             </ul>
           </nav>
           <div class={styles.content}>
-            <GameGrid
-              active={activeTab === "Create a game"}
-              createCustomGame={() => setPopup(true)}
-            />
-            <ListOfGames active={activeTab === "Game list"} />
+            <GameGrid active={true} createCustomGame={showPopup} />
           </div>
         </div>
-        {popup && (
+        <Show when={popup()}>
           <Modal
             close={() => {
               resetInputValues();
@@ -132,10 +156,7 @@ export const Home = () => {
                   ],
                 },
               ]}
-              close={() => {
-                resetInputValues();
-                setPopup(false);
-              }}
+              close={closePopup}
               inputValues={popupInputValues}
               handleInputChange={handleInputChange}
               handleSelectChange={handleSelectChange}
@@ -160,17 +181,7 @@ export const Home = () => {
               setError={setError}
             />
           </Modal>
-        )}
-        <button
-          class={styles.underline_btn}
-          type="button"
-          onClick={() => {
-            if (!user) return;
-            initPlayEngine(socket!, user);
-          }}
-        >
-          Play against engine
-        </button>
+        </Show>
       </Layout>
     </>
   );

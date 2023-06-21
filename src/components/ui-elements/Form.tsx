@@ -1,10 +1,10 @@
+import styles from "../../styles/Form.module.scss";
 import { JSX, Match, Switch } from "solid-js";
-import useInputError from "../hooks/useInputError";
-import styles from "../styles/Form.module.scss";
+import useInputError from "../../hooks/useInputError";
+import { FlatBtn } from "./buttons/FlatBtn";
 import InputField from "./inputs/InputField";
 import RadioList from "./inputs/RadioList";
 import Select from "./inputs/Select";
-import FlatBtn from "./ui-elements/FlatBtn";
 
 export type Option = {
   value: string;
@@ -95,7 +95,7 @@ export function Form({
 
               return (
                 <Switch>
-                  <Match when={!f.unitsDisplay}>
+                  <Match when={f.unitsDisplay}>
                     <div class={styles.with_units}>
                       <InputField
                         autoFocus={idx === 0}

@@ -1,6 +1,6 @@
 import { JSX } from "solid-js";
 import { Fields } from "../Form";
-import styles from "../styles/InputField.module.scss";
+import styles from "../../../styles/InputField.module.scss";
 
 interface InputFieldProps extends Fields {
   error: string;

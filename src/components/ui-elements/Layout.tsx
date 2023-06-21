@@ -1,5 +1,5 @@
 import { children, JSXElement } from "solid-js";
-import NavBar from "./NavBar";
+import { NavBar } from "./NavBar";
 
 interface LayoutProps {
   children: JSXElement;

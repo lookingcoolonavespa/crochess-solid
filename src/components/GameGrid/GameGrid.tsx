@@ -22,31 +22,37 @@ export const GameGrid = (props: GameGridProps) => {
   const rootClasses = [styles.main, "foreground"];
 
   return (
-    <div class={rootClasses.join(" ")} classList={{ inactive: props.active }}>
-      {timeControls.map((tc, i) => {
-        return (
-          <TimeControlButton
-            time={tc.time}
-            increment={tc.increment}
-            type={tc.type}
-            searching={activeSearch() === i}
-            onClick={() => {
-              if (tc.type === "custom") {
-                props.createCustomGame();
-                return;
-              }
-              setActiveSearch(i);
-              const time = toMilliseconds({ minutes: tc.time });
-              try {
-                if (!user) return;
-                createGameSeek(socket!, time, tc.increment, "random", user);
-              } catch (err) {
-                console.log(err);
-              }
-            }}
-          />
-        );
-      })}
+    <div class={styles.grid_container}>
+      <div class={rootClasses.join(" ")} classList={{ inactive: props.active }}>
+        {timeControls.map((tc, i) => {
+          let onClick =
+            tc.type === "custom"
+              ? () => {
+                  props.createCustomGame();
+                }
+              : () => {
+                  setActiveSearch(i);
+                  const time = toMilliseconds({ minutes: tc.time });
+                  try {
+                    if (!user) return;
+                    createGameSeek(socket!, time, tc.increment, "random", user);
+                  } catch (err) {
+                    console.log(err);
+                  }
+                };
+          return (
+            <div class={styles.grid_box}>
+              <TimeControlButton
+                time={tc.time}
+                increment={tc.increment}
+                type={tc.type}
+                searching={activeSearch() === i}
+                onClick={onClick}
+              />
+            </div>
+          );
+        })}
+      </div>
     </div>
   );
 };

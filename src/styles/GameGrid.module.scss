@@ -1,46 +1,61 @@
-@use './mixins';
+@use "./mixins";
 
-$grid_gap: 10px;
+$grid_gap: 2em;
+$grid_rows: 4;
+$grid_cols: 3;
 
 .main {
-  display: grid;
-  column-gap: $grid_gap;
+  display: flex;
+  justify-content: space-between;
+  flex-wrap: wrap;
   row-gap: $grid_gap;
-  grid-template-columns: repeat(3, 1fr);
+  column-gap: $grid_gap;
   border-radius: 3px;
 }
 
-.tc-btn {
-  @include mixins.flexCenter(column);
-  border-radius: 5px;
-  height: 130px;
+.grid_box {
+  width: calc(100% / $grid_cols - $grid_gap);
+  aspect-ratio: 1;
+  border-radius: 50%;
+  position: relative;
+  cursor: pointer;
 
-  :global(.title) {
-    font-weight: 400;
-    font-size: 33px;
-    margin: 0;
-    margin: 10px 0;
+  &:before {
+    content: "";
+    position: absolute;
+    top: 1%;
+    left: 5%;
+    width: 90%;
+    height: 90%;
+    border-radius: 50%;
+    background: none;
+    transition: all ease-out 0.5s;
   }
 
-  :global(.caption) {
-    margin: 0;
-    font-size: 18px;
-    font-weight: 300;
+  &:after {
+    @include mixins.fullSizeAbsolute();
+    content: "";
+    background: radial-gradient(
+      circle at 33% 33%,
+      var(--foreground) 60%,
+      rgba(var(--RGB_accent-1), 0.5)
+    );
+    transition: all ease-out 0.1s;
+    border-radius: 50%;
+    z-index: 0;
+  }
+
+  &:hover::after {
+    border: none;
+    transform: scale(1.05);
+  }
+  &:hover::before {
+    filter: blur(5px);
+    background: radial-gradient(
+      circle at 0% 0px,
+      #f5efe5,
+      rgba(255, 255, 255, 0) 58%
+    );
+    z-index: 1;
   }
 }
-
-@media screen and (max-width: 568px) {
-  .tc-btn {
-    height: 130px;
-
-    :global(.title) {
-      font-size: 25px;
-      margin: 10px 0;
-    }
-
-    :global(.caption) {
-      font-size: 14px;
-    }
-  }
-}
-

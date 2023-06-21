@@ -1,4 +1,4 @@
-import { GameType } from "./types/types";
+import { Colors, GameType } from "./types/types";
 
 export const timeControls: (CustomTimeControl | TimeControl)[] = [
   createTimeControl({ time: 1, increment: 0, type: "bullet" }),
@@ -33,3 +33,8 @@ function createTimeControl(
 ): TimeControl | CustomTimeControl {
   return control;
 }
+
+export const OPP_COLOR: Record<Colors, Colors> = {
+  w: "b",
+  b: "w",
+};

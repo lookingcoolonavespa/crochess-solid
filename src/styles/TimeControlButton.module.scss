@@ -1,0 +1,36 @@
+@use "./mixins";
+
+.main {
+  @include mixins.flexCenter(column);
+  row-gap: 0.8em;
+  border-radius: 50%;
+  // border: 1px solid black;
+  height: 100%;
+  position: relative;
+  z-index: 10;
+
+  .title {
+    padding-top: 0.3em;
+    font-weight: 400;
+    margin: 0;
+  }
+
+  .caption {
+    margin: 0;
+    font: {
+      family: "Noto Sans", serif;
+      weight: 400;
+    }
+    opacity: 0.7;
+  }
+}
+
+// @media screen and (max-width: 568px) {
+//   .main {
+//     .title {
+//     }
+//
+//     .caption {
+//     }
+//   }
+// }
