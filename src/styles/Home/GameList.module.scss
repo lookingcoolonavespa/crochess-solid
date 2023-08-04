@@ -1,0 +1,45 @@
+@use "../mixins";
+
+$row-gap: 1em;
+
+.game_list_main {
+  @include mixins.fullSizeAbsolute();
+  @include mixins.flexCenter(column);
+
+  align-items: stretch;
+  height: 100%;
+  :global(.section-header) {
+    padding-bottom: 10px;
+    margin-top: 10px;
+    border-bottom: 1px solid var(--text);
+  }
+}
+
+.header {
+  margin-bottom: $row-gap;
+}
+
+.inactive {
+  opacity: 0;
+}
+
+.game_door-ctn {
+  position: relative;
+  flex: 1 1 auto;
+  width: 100%;
+
+  :global(.scroller) {
+    left: -2em;
+    right: -2em;
+    max-width: 100vw;
+    padding-bottom: 2em;
+    padding: 0 2em 2em 2em;
+    box-sizing: content-box;
+  }
+}
+
+.list_wrapper {
+  display: flex;
+  flex-direction: column;
+  row-gap: $row-gap;
+}

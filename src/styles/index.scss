@@ -27,6 +27,10 @@ body {
   font-family: "Merriweather", serif;
 }
 
+ul {
+  list-style: none;
+}
+
 #root {
   background: var(--background);
   display: flex;
@@ -36,4 +40,25 @@ body {
 #modal {
   padding: 0;
   display: flex;
+}
+
+.space-evenly {
+  display: flex;
+  justify-content: space-evenly;
+}
+.space-evenly > * {
+  flex: 1 1 0;
+}
+
+.text-center {
+  text-align: center;
+}
+
+.scroller {
+  position: absolute;
+  top: 0;
+  left: 0;
+  bottom: 0;
+  right: 0;
+  overflow: auto;
 }

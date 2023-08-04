@@ -1,4 +1,4 @@
-import styles from "../../styles/NavBar.module.scss";
+import styles from "../../styles/ui-elements/NavBar.module.scss";
 
 export const NavBar = () => {
   return (

@@ -1,7 +1,7 @@
 import { Form, FormProps } from "./Form";
 
 import { CloseSvg } from "../../assets/svg/close-line";
-import styles from "../../styles/Popup.module.scss";
+import styles from "../../styles/ui-elements/Popup.module.scss";
 import { children, JSXElement, Show } from "solid-js";
 import { IconBtn } from "./buttons/IconBtn";
 
@@ -25,7 +25,7 @@ export function Popup({
   isMobile,
   ...props
 }: PopupProps) {
-  const baseClass = [styles.main, "hi"];
+  const baseClass = [styles.main];
   if (className) baseClass.push(className);
 
   const c = children(() => props.children);
@@ -37,7 +37,7 @@ export function Popup({
         e.stopPropagation();
       }}
     >
-      <header>
+      <header class={styles.header}>
         <h3>{title}</h3>
         <Show when={subheader}>
           <div class="subheader">

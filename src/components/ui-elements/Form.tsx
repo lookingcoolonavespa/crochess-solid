@@ -1,4 +1,3 @@
-import styles from "../../styles/Form.module.scss";
 import { JSX, Match, Switch } from "solid-js";
 import useInputError from "../../hooks/useInputError";
 import { FlatBtn } from "./buttons/FlatBtn";
@@ -34,49 +33,39 @@ export interface FormProps {
   cleanUp?: () => void;
   close: () => void;
   setError: (string: string) => void;
+  styles?: CSSModuleClasses;
 }
 
-export function Form({
-  fields,
-  inputValues,
-  actionBtnText,
-  noCancelBtn,
-  cancelBtnText,
-  handleInputChange,
-  handleSelectChange,
-  submitAction,
-  cleanUp,
-  close,
-}: FormProps) {
-  const fieldNames = fields.map((f) => f.name);
+export function Form(props: FormProps) {
+  const fieldNames = props.fields.map((f) => f.name);
   const { inputError, validateInput, submitForm } = useInputError(fieldNames);
 
   return (
     <form
       onSubmit={async (e) => {
-        cleanUp = cleanUp || close;
-        await submitForm(e.currentTarget, submitAction, cleanUp);
+        props.cleanUp = props.cleanUp || close;
+        await submitForm(e.currentTarget, props.submitAction, props.cleanUp);
       }}
-      class={styles.main}
+      class={props.styles.main}
     >
       <div class="content">
         <input type="password" hidden />
         {/* need this to turn off autocomplete */}
-        {fields.map((f: Fields, idx) => {
+        {props.fields.map((f: Fields, idx) => {
           switch (f.type) {
             case "dropdown":
               return (
                 <Select
-                  onInput={handleSelectChange}
-                  value={(inputValues[f.name] as string) || ""}
+                  onInput={props.handleSelectChange}
+                  value={(props.inputValues[f.name] as string) || ""}
                   {...f}
                 />
               );
             case "radioList": {
               return (
                 <RadioList
-                  onInput={handleInputChange}
-                  value={(inputValues[f.name] as string) || ""}
+                  onInput={props.handleInputChange}
+                  value={(props.inputValues[f.name] as string) || ""}
                   {...f}
                 />
               );
@@ -86,7 +75,7 @@ export function Form({
                 e
               ) => {
                 validateInput(e.currentTarget as HTMLInputElement);
-                handleInputChange(e);
+                props.handleInputChange(e);
               };
               const onBlur: JSX.FocusEventHandler<
                 HTMLInputElement,
@@ -96,20 +85,20 @@ export function Form({
               return (
                 <Switch>
                   <Match when={f.unitsDisplay}>
-                    <div class={styles.with_units}>
+                    <div class={props.styles?.with_units}>
                       <InputField
                         autoFocus={idx === 0}
                         onBlur={onBlur}
                         error={inputError()[f.name]}
                         onInput={onInput}
-                        value={inputValues[f.name] ?? ""}
+                        value={props.inputValues[f.name] ?? ""}
                         {...f}
                         type={f.type}
                       />
                       <Select
-                        onInput={handleSelectChange}
+                        onInput={props.handleSelectChange}
                         value={
-                          (inputValues[
+                          (props.inputValues[
                             f.unitsDisplay?.name as string
                           ] as string) || ""
                         }
@@ -123,7 +112,7 @@ export function Form({
                       onBlur={onBlur}
                       error={inputError()[f.name]}
                       onInput={onInput}
-                      value={inputValues[f.name] || ""}
+                      value={props.inputValues[f.name] || ""}
                       {...f}
                       type={f.type}
                     />

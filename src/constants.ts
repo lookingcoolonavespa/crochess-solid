@@ -35,6 +35,11 @@ function createTimeControl(
 }
 
 export const OPP_COLOR: Record<Colors, Colors> = {
-  w: "b",
-  b: "w",
+  white: "black",
+  black: "white",
 };
+
+export const PIECE_TYPES = ["r", "n", "b", "q", "k", "p"] as const;
+
+export const RANKS = ["1", "2", "3", "4", "5", "6", "7", "8"];
+export const FILES = ["a", "b", "c", "d", "e", "f", "g", "h"];

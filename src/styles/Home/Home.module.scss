@@ -13,27 +13,14 @@
   margin-bottom: 4em;
 }
 
+.content {
+  position: relative;
+}
+
 .tabs {
   ul {
     list-style: none;
     display: flex;
-    column-gap: 1em;
-  }
-
-  li {
-    cursor: pointer;
-    padding: 0 0.1em 0.3em 0.1em;
-  }
-
-  li.inactive {
-    opacity: 0.5;
-
-    &:hover {
-      opacity: 1;
-    }
-  }
-
-  li:not(.inactive) {
-    border-bottom: 3px solid var(--main-accent);
+    column-gap: 3em;
   }
 }

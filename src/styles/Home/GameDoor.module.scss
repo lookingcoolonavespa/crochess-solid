@@ -1,0 +1,19 @@
+.main {
+  background-color: var(--foreground);
+  border-radius: 1em;
+  box-shadow: 0.8px 0.8px 1.1px rgba(0, 0, 0, 0.028),
+    2.7px 2.7px 3.8px rgba(0, 0, 0, 0.042), 12px 12px 17px rgba(0, 0, 0, 0.07);
+  transition: all ease-out 0.3s;
+  cursor: pointer;
+
+  &:hover {
+    transform: translateX(-2%);
+    filter: brightness(1.05);
+  }
+}
+
+.my_seek {
+  pointer-events: none;
+  opacity: 0.5;
+  background: rgba(var(--RGB_accent-1), 0.4);
+}

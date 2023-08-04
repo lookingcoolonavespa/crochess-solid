@@ -1,10 +1,10 @@
-@use "./mixins";
+@use "../mixins";
 
 $grid_gap: 2em;
 $grid_rows: 4;
 $grid_cols: 3;
 
-.main {
+.game_grid_main {
   display: flex;
   justify-content: space-between;
   flex-wrap: wrap;
@@ -13,12 +13,22 @@ $grid_cols: 3;
   border-radius: 3px;
 }
 
+.inactive {
+  opacity: 0;
+}
+
 .grid_box {
   width: calc(100% / $grid_cols - $grid_gap);
   aspect-ratio: 1;
   border-radius: 50%;
   position: relative;
   cursor: pointer;
+  box-shadow: 1.3px 1.3px 2.2px rgba(0, 0, 0, 0.007),
+    3.1px 3.1px 5.3px rgba(0, 0, 0, 0.015),
+    5.8px 5.8px 10px rgba(0, 0, 0, 0.024),
+    10.3px 10.3px 17.9px rgba(0, 0, 0, 0.034),
+    19.2px 19.2px 33.4px rgba(0, 0, 0, 0.046),
+    46px 46px 80px rgba(0, 0, 0, 0.07);
 
   &:before {
     content: "";
@@ -54,7 +64,7 @@ $grid_cols: 3;
     background: radial-gradient(
       circle at 0% 0px,
       #f5efe5,
-      rgba(255, 255, 255, 0) 58%
+      rgba(245, 239, 229, 0) 58%
     );
     z-index: 1;
   }

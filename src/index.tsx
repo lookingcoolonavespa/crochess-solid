@@ -1,9 +1,16 @@
 /* @refresh reload */
 import { render } from "solid-js/web";
+import initRustChess from "wasm-engine";
 
 import "./styles/index.scss";
 import App from "./App";
 import { Route, Router, Routes } from "@solidjs/router";
+import { Game } from "./components/Game/Game";
+import { createSignal, onCleanup, onMount } from "solid-js";
+import { Client, IStompSocket } from "@stomp/stompjs";
+import SockJS from "sockjs-client/dist/sockjs";
+import { Option } from "./types/types";
+import { User, UserContext } from "./utils/contexts/UserContext";
 
 const root = document.getElementById("root");
 
@@ -13,13 +20,63 @@ if (import.meta.env.DEV && !(root instanceof HTMLElement)) {
   );
 }
 
-render(
-  () => (
-    <Router>
-      <Routes>
-        <Route path="/" component={App} />
-      </Routes>
-    </Router>
-  ),
-  root!
-);
+(async function () {
+  await initRustChess();
+  const [user, setUser] = createSignal<User>(null);
+  const socket = useConnectToSocket();
+  function useConnectToSocket() {
+    let [socket, setSocket] = createSignal<Option<Client>>(null);
+
+    onMount(function connectToSocket() {
+      if (socket()?.active) return;
+
+      const stompClient = new Client();
+      stompClient.webSocketFactory = () => {
+        return new SockJS(
+          `${import.meta.env.VITE_BACKEND_URL}/websocket`
+        ) as IStompSocket;
+      };
+
+      const userId = sessionStorage.getItem("user") || getRdmInt().toString();
+      function getRdmInt() {
+        return Math.floor(2147483647 * Math.random());
+      }
+
+      stompClient.connectHeaders = { name: userId };
+      stompClient.activate();
+      stompClient.onConnect = () => {
+        setUser(userId);
+        sessionStorage.setItem("user", userId);
+        // used to identify user if they refresh or disconnect
+        setSocket(stompClient);
+      };
+    });
+
+    onCleanup(function deactivateSocket() {
+      socket()?.deactivate();
+      setUser(null);
+    });
+
+    return socket;
+  }
+
+  render(
+    () => (
+      <UserContext.Provider
+        value={{
+          setUser,
+          user,
+          socket,
+        }}
+      >
+        <Router>
+          <Routes>
+            <Route path="/" component={App} />
+            <Route path="/:id" component={Game} />
+          </Routes>
+        </Router>
+      </UserContext.Provider>
+    ),
+    root!
+  );
+})();

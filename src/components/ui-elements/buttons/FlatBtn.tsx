@@ -1,5 +1,5 @@
-import { JSX } from "solid-js";
-import styles from "../../../styles/FlatBtn.module.scss";
+import { JSX, Show } from "solid-js";
+import styles from "../../../styles/ui-elements/FlatBtn.module.scss";
 
 interface FlatBtnProps {
   className?: string;
@@ -10,31 +10,27 @@ interface FlatBtnProps {
   hollow?: boolean;
   size: "small" | "medium";
   onClick?: JSX.EventHandler<HTMLButtonElement, MouseEvent>;
-  icon?: { src: string; alt: string };
+  icon?: JSX.Element;
 }
 
-export function FlatBtn({
-  className,
-  type,
-  text,
-  underline,
-  filled,
-  hollow,
-  size,
-  onClick,
-  icon,
-}: FlatBtnProps) {
-  const classes = [styles.main, styles[size]];
-  if (className) classes.push(className);
-  if (filled) classes.push(styles.filled);
-  if (hollow) classes.push(styles.hollow);
+export function FlatBtn(props: FlatBtnProps) {
+  const classes = [styles.main, styles[props.size]];
+  if (props.className) classes.push(props.className);
+  if (props.filled) classes.push(styles.filled);
+  if (props.hollow) classes.push(styles.hollow);
 
   return (
-    <button type={type || "button"} class={classes.join(" ")} onClick={onClick}>
-      {text && (
-        <span class={underline ? styles["underline-hover"] : ""}>{text}</span>
-      )}
-      {icon && <img src={icon.src} alt={icon.alt} />}
+    <button
+      type={props.type || "button"}
+      class={classes.join(" ")}
+      onClick={props.onClick}
+    >
+      <Show when={props.text}>
+        <span class={props.underline ? styles["underline-hover"] : ""}>
+          {props.text}
+        </span>
+      </Show>
+      <Show when={props.icon}>{props.icon}</Show>
     </button>
   );
 }

@@ -1,6 +1,6 @@
 import { Match, Switch } from "solid-js";
-import { GameType } from "../../types/types";
-import styles from "../../styles/TimeControlButton.module.scss";
+import { GameType } from "../../../types/types";
+import styles from "../../../styles/Home/TimeControlButton.module.scss";
 
 type TimeControlButtonProps = {
   time: number | null;
