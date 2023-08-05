@@ -1,17 +1,16 @@
 import GameDoor from "./GameDoor";
 
 import styles from "../../../styles/Home/GameList.module.scss";
-import { Index, useContext } from "solid-js";
+import { Index } from "solid-js";
 import { useListOfGames } from "../../../hooks/useListOfGames";
-import { GameSeek } from "../../../types/types";
-import { socket } from "../../../utils/global_state/globalState";
+import { socket } from "../../../globalState";
 
 type GameListProps = {
   active: boolean;
 };
 
 export function GameList(props: GameListProps) {
-  const { listOfGames } = useListOfGames(socket!);
+  const { listOfGames } = useListOfGames(socket);
 
   return (
     <div
@@ -29,7 +28,7 @@ export function GameList(props: GameListProps) {
       </header>
       <section class={styles["game_door-ctn"]}>
         <div class={["scroller", styles.list_wrapper].join(" ")}>
-          <Index each={listOfGames}>
+          <Index each={listOfGames()}>
             {(gs) => <GameDoor gameSeek={gs()} />}
           </Index>
         </div>

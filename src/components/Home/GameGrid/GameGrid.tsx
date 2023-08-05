@@ -1,9 +1,9 @@
 import styles from "../../../styles/Home/GameGrid.module.scss";
 import { toMilliseconds } from "../../../utils/time";
-import { createSignal, useContext } from "solid-js";
+import { createSignal } from "solid-js";
+import { user, socket } from "../../../globalState";
 import { Option } from "../../../types/types";
 import { timeControls } from "../../../constants";
-import { UserContext } from "../../../utils/contexts/UserContext";
 import { createGameSeek } from "../../../utils/game";
 import { TimeControlButton } from "./TimeControlButton";
 
@@ -14,10 +14,6 @@ interface GameGridProps {
 
 export const GameGrid = (props: GameGridProps) => {
   const [activeSearch, setActiveSearch] = createSignal<Option<number>>(null);
-  const { user, socket } = useContext(UserContext) || {
-    user: null,
-    socket: null,
-  };
 
   return (
     <div
@@ -37,7 +33,7 @@ export const GameGrid = (props: GameGridProps) => {
                 const time = toMilliseconds({ minutes: tc.time });
                 try {
                   if (!user) return;
-                  createGameSeek(socket!, time, tc.increment, "random", user);
+                  createGameSeek(socket, time, tc.increment, "random", user);
                 } catch (err) {
                   console.log(err);
                 }

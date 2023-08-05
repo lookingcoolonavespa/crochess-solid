@@ -1,12 +1,7 @@
+import { socket } from "../../globalState";
 import styles from "../../styles/Game/Game.module.scss";
 import { useParams } from "@solidjs/router";
-import {
-  batch,
-  createEffect,
-  createSignal,
-  onCleanup,
-  useContext,
-} from "solid-js";
+import { batch, createEffect, createSignal, onCleanup } from "solid-js";
 import { createStore, unwrap } from "solid-js/store";
 import {
   Colors,
@@ -16,7 +11,6 @@ import {
   Option,
   Square,
 } from "../../types/types";
-import { UserContext } from "../../utils/contexts/UserContext";
 import { ClientGameInterface as GameInterface } from "wasm-engine";
 import {
   GameOverDetails,
@@ -87,8 +81,6 @@ function parseHistory(history: string): HistoryArr {
 }
 
 export function Game() {
-  const { socket } = useContext(UserContext) || { socket: null };
-
   const [gameboardView, setGameboardView] = createSignal<Colors>("white");
   const [boardBeingViewed, setBoardBeingViewed] =
     createSignal<Option<number>>(null);

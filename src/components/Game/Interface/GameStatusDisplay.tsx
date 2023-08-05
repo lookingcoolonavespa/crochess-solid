@@ -1,13 +1,13 @@
 import { useParams } from "@solidjs/router";
-import { Match, Setter, Show, Switch, useContext } from "solid-js";
+import { Match, Setter, Show, Switch } from "solid-js";
 import { GameStatusInterface } from "../../../types/interfaces";
 import { Colors } from "../../../types/types";
-import { UserContext } from "../../../utils/contexts/UserContext";
 import { claimDraw, denyDraw, offerDraw, resign } from "../../../utils/game";
 import { CheckIcon } from "../../icons/CheckIcon";
 import { CloseIcon } from "../../icons/CloseIcon";
 import { FlatBtn } from "../../ui-elements/buttons/FlatBtn";
 import { IconBtn } from "../../ui-elements/buttons/IconBtn";
+import { socket } from "../../../globalState";
 
 interface GameStatusDisplayProps {
   styles: { [key: string]: string };
@@ -17,7 +17,6 @@ interface GameStatusDisplayProps {
 }
 
 export default function GameStatusDisplay(props: GameStatusDisplayProps) {
-  const { socket } = useContext(UserContext) || { socket: null };
   const { id: gameId } = useParams();
 
   return (

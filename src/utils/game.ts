@@ -1,16 +1,18 @@
 import { Client } from "@stomp/stompjs";
 import { Accessor } from "solid-js";
 import { OPP_COLOR } from "../constants";
-import { socket, Socket, User } from "../globalState";
+import { user, socket, Socket, User } from "../globalState";
 import { Colors, GameSeek, GameSeekColors, GameType } from "../types/types";
 
 export function createGameSeek(
-  stompClient: Client,
   time: number,
   increment: number,
-  color: GameSeekColors,
-  seeker: string
+  color: GameSeekColors
 ) {
+  let seeker = user();
+  let stompClient = socket();
+  if (!seeker || !stompClient) return;
+
   stompClient.publish({
     destination: "/app/api/gameseeks",
     body: JSON.stringify({
@@ -45,7 +47,7 @@ export function createGame(gameSeek: GameSeek): void {
   }
 
   let stompClient = socket();
-  if (!stompClient) return;
+  if (!stompClient) return console.error(NOT_CONNECTED_TO_SOCKET_ERR_MSG);
 
   stompClient.publish({
     destination: "/app/api/game",
@@ -95,11 +97,9 @@ export function getActivePlayer(
   }
 }
 
-export function offerDraw(
-  stompClient: Client,
-  gameId: string,
-  offerer: Colors
-) {
+export function offerDraw(gameId: string, offerer: Colors) {
+  let stompClient = socket();
+  if (!stompClient) return console.error(NOT_CONNECTED_TO_SOCKET_ERR_MSG);
   const oppColor = OPP_COLOR[offerer];
   stompClient.publish({
     destination: `/app/api/game/${gameId}/draw`,
