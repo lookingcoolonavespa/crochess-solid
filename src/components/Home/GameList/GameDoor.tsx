@@ -1,36 +1,32 @@
-import { UserContext } from "../../../utils/contexts/UserContext";
 import styles from "../../../styles/Home/GameDoor.module.scss";
-import { Index, useContext } from "solid-js";
 import { fromMillisecondsToMinutes } from "../../../utils/time";
 import { GameSeek } from "../../../types/types";
 import { createGame } from "../../../utils/game";
+import { user, socket } from "../../../globalState";
 
 type GameDoorProps = {
   gameSeek: GameSeek;
 };
 
 export default function GameDoor(props: GameDoorProps) {
-  const { user, socket } = useContext(UserContext) || {
-    user: "user",
-    socket: null,
+  const rootClasses = () => {
+    let rootClasses = [
+      styles.main,
+      "foreground",
+      "hover-highlight",
+      "space-evenly",
+    ];
+    if (props.gameSeek.seeker === user()) rootClasses.push(styles.my_seek);
+    return rootClasses;
   };
-
-  const rootClasses = [
-    styles.main,
-    "foreground",
-    "hover-highlight",
-    "space-evenly",
-  ];
-  if (props.gameSeek.seeker === user) rootClasses.push(styles.my_seek);
 
   return (
     <div
-      class={rootClasses.join(" ")}
+      class={rootClasses().join(" ")}
       onClick={(e) => {
         e.stopPropagation();
         try {
-          if (!user) return;
-          createGame(socket!, user, props.gameSeek);
+          createGame(props.gameSeek);
         } catch (err) {
           console.log(err);
         }

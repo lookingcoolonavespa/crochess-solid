@@ -1,5 +1,7 @@
 import { Client } from "@stomp/stompjs";
+import { Accessor } from "solid-js";
 import { OPP_COLOR } from "../constants";
+import { socket, Socket, User } from "../globalState";
 import { Colors, GameSeek, GameSeekColors, GameType } from "../types/types";
 
 export function createGameSeek(
@@ -25,11 +27,9 @@ function getRdmColor(): Colors {
   return rdm >= 0.5 ? "white" : "black";
 }
 
-export function createGame(
-  stompClient: Client,
-  challenger: string,
-  gameSeek: GameSeek
-): void {
+export function createGame(gameSeek: GameSeek): void {
+  let challenger = user();
+  if (!challenger) return;
   if (gameSeek.color.toLowerCase() === "random") gameSeek.color = getRdmColor();
 
   let whitePlayer, blackPlayer;
@@ -43,6 +43,9 @@ export function createGame(
       blackPlayer = challenger;
       break;
   }
+
+  let stompClient = socket();
+  if (!stompClient) return;
 
   stompClient.publish({
     destination: "/app/api/game",

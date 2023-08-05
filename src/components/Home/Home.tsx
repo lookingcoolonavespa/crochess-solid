@@ -1,13 +1,5 @@
 import { useNavigate } from "@solidjs/router";
-import {
-  createEffect,
-  createSignal,
-  JSX,
-  onCleanup,
-  Show,
-  useContext,
-} from "solid-js";
-import { UserContext } from "../../utils/contexts/UserContext";
+import { createEffect, createSignal, JSX, onCleanup, Show } from "solid-js";
 import { GameGrid } from "./GameGrid/GameGrid";
 import styles from "../../styles/Home/Home.module.scss";
 import { Modal } from "../ui-elements/Modal";
@@ -20,15 +12,12 @@ import { Popup } from "../ui-elements/Popup";
 import { OPP_COLOR } from "../../constants";
 import { GameList } from "./GameList/GameList";
 import { Tab } from "./Tab";
+import { user, socket } from "../../globalState";
 
 const GAME_GRID_INDEX = 0;
 const GAME_LIST_INDEX = 1;
 
 export const Home = () => {
-  const { user, socket } = useContext(UserContext) || {
-    user: null,
-    socket: null,
-  };
   const [popup, setPopup] = createSignal(false);
   const [error, setError] = createSignal("");
   const [activeTabIndex, setActiveTabIndex] = createSignal(0);
@@ -52,8 +41,6 @@ export const Home = () => {
   const navigate = useNavigate();
 
   createEffect(function listenToAcceptedGameSeeks() {
-    // useEffect([navigate, user, socket]);
-    if (!socket || !user) return;
     let userId = user();
     let socketClient = socket();
     if (!socketClient || !userId) return;
