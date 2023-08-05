@@ -6,11 +6,16 @@ import "./styles/index.scss";
 import App from "./App";
 import { Route, Router, Routes } from "@solidjs/router";
 import { Game } from "./components/Game/Game";
-import { createSignal, onCleanup, onMount } from "solid-js";
+import { onCleanup, onMount } from "solid-js";
 import { Client, IStompSocket } from "@stomp/stompjs";
 import SockJS from "sockjs-client/dist/sockjs";
-import { Option } from "./types/types";
-import { User, UserContext } from "./utils/contexts/UserContext";
+import {
+  setUser,
+  socket,
+  setSocket,
+  User,
+  UserContext,
+} from "./utils/contexts/UserContext";
 
 const root = document.getElementById("root");
 
@@ -22,11 +27,8 @@ if (import.meta.env.DEV && !(root instanceof HTMLElement)) {
 
 (async function () {
   await initRustChess();
-  const [user, setUser] = createSignal<User>(null);
-  const socket = useConnectToSocket();
+  useConnectToSocket();
   function useConnectToSocket() {
-    let [socket, setSocket] = createSignal<Option<Client>>(null);
-
     onMount(function connectToSocket() {
       if (socket()?.active) return;
 

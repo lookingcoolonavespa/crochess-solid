@@ -1,17 +1,16 @@
 import GameDoor from "./GameDoor";
 
 import styles from "../../../styles/Home/GameList.module.scss";
-import { UserContext } from "../../../utils/contexts/UserContext";
 import { Index, useContext } from "solid-js";
 import { useListOfGames } from "../../../hooks/useListOfGames";
 import { GameSeek } from "../../../types/types";
+import { socket } from "../../../utils/global_state/globalState";
 
 type GameListProps = {
   active: boolean;
 };
 
 export function GameList(props: GameListProps) {
-  const { socket } = useContext(UserContext) || { socket: null };
   const { listOfGames } = useListOfGames(socket!);
 
   return (
