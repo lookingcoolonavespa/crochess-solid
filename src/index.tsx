@@ -1,6 +1,6 @@
 /* @refresh reload */
 import { render } from "solid-js/web";
-import initRustChess from "wasm-engine";
+import initRustChess from "rust_engine";
 
 import "./styles/index.scss";
 import App from "./App";
@@ -9,13 +9,7 @@ import { Game } from "./components/Game/Game";
 import { onCleanup, onMount } from "solid-js";
 import { Client, IStompSocket } from "@stomp/stompjs";
 import SockJS from "sockjs-client/dist/sockjs";
-import {
-  setUser,
-  socket,
-  setSocket,
-  User,
-  UserContext,
-} from "./utils/contexts/UserContext";
+import { setUser, socket, setSocket } from "./globalState";
 
 const root = document.getElementById("root");
 
@@ -64,20 +58,12 @@ if (import.meta.env.DEV && !(root instanceof HTMLElement)) {
 
   render(
     () => (
-      <UserContext.Provider
-        value={{
-          setUser,
-          user,
-          socket,
-        }}
-      >
-        <Router>
-          <Routes>
-            <Route path="/" component={App} />
-            <Route path="/:id" component={Game} />
-          </Routes>
-        </Router>
-      </UserContext.Provider>
+      <Router>
+        <Routes>
+          <Route path="/" component={App} />
+          <Route path="/:id" component={Game} />
+        </Routes>
+      </Router>
     ),
     root!
   );

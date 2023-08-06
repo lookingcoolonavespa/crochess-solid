@@ -11,7 +11,7 @@ import {
   Option,
   Square,
 } from "../../types/types";
-import { ClientGameInterface as GameInterface } from "wasm-engine";
+import { ClientGameInterface as GameInterface } from "rust_engine";
 import {
   GameOverDetails,
   GameOverGameState,

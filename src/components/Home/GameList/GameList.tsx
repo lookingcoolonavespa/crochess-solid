@@ -3,14 +3,13 @@ import GameDoor from "./GameDoor";
 import styles from "../../../styles/Home/GameList.module.scss";
 import { Index } from "solid-js";
 import { useListOfGames } from "../../../hooks/useListOfGames";
-import { socket } from "../../../globalState";
 
 type GameListProps = {
   active: boolean;
 };
 
 export function GameList(props: GameListProps) {
-  const { listOfGames } = useListOfGames(socket);
+  const { listOfGames } = useListOfGames();
 
   return (
     <div

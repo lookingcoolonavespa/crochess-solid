@@ -6,6 +6,9 @@ export default defineConfig({
   plugins: [solidPlugin(), wasm()],
   server: {
     port: 3000,
+    fs: {
+      allow: [".", "../rust_engine/pkg/"],
+    },
   },
   build: {
     target: "esnext",
@@ -14,6 +17,6 @@ export default defineConfig({
     extensions: [".js", ".ts", ".jsx", ".tsx", ".json", ".wasm"],
   },
   optimizeDeps: {
-    exclude: ["wasm-engine"],
+    exclude: ["rust_engine"],
   },
 });
