@@ -33,7 +33,7 @@ export const GameGrid = (props: GameGridProps) => {
                 const time = toMilliseconds({ minutes: tc.time });
                 try {
                   if (!user) return;
-                  createGameSeek(socket, time, tc.increment, "random", user);
+                  createGameSeek(time, tc.increment, "random");
                 } catch (err) {
                   console.log(err);
                 }

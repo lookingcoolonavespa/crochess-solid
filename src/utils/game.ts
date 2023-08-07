@@ -1,8 +1,7 @@
 import { Client } from "@stomp/stompjs";
-import { Accessor } from "solid-js";
-import { OPP_COLOR } from "../constants";
-import { user, socket, Socket, User } from "../globalState";
-import { Colors, GameSeek, GameSeekColors, GameType } from "../types/types";
+import { NOT_CONNECTED_TO_SOCKET_ERR_MSG, OPP_COLOR } from "../constants";
+import { user, socket } from "../globalState";
+import { Colors, GameSeek, GameSeekColors } from "../types/types";
 
 export function createGameSeek(
   time: number,
@@ -13,13 +12,15 @@ export function createGameSeek(
   let stompClient = socket();
   if (!seeker || !stompClient) return;
 
+  let colorToSendToServer = color === "white" ? "w" : "b";
+
   stompClient.publish({
     destination: "/app/api/gameseeks",
     body: JSON.stringify({
       time,
       increment,
-      color,
       seeker,
+      color: colorToSendToServer,
     }),
   });
 }

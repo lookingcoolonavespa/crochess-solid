@@ -1,5 +1,7 @@
 import { Colors, GameType } from "./types/types";
 
+export const NOT_CONNECTED_TO_SOCKET_ERR_MSG = "not connected to websocket";
+
 export const timeControls: (CustomTimeControl | TimeControl)[] = [
   createTimeControl({ time: 1, increment: 0, type: "bullet" }),
   createTimeControl({ time: 2, increment: 1, type: "bullet" }),
