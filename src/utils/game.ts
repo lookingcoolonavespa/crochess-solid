@@ -1,7 +1,10 @@
-import { Client } from "@stomp/stompjs";
-import { NOT_CONNECTED_TO_SOCKET_ERR_MSG, OPP_COLOR } from "../constants";
+import {
+  NOT_CONNECTED_TO_SOCKET_ERR_MSG,
+  OPP_COLOR,
+  USER_NOT_FOUND_ERR_MSG,
+} from "../constants";
 import { user, socket } from "../globalState";
-import { Colors, GameSeek, GameSeekColors } from "../types/types";
+import { Colors, GameSeek, GameSeekColors, MoveNotation } from "../types/types";
 
 export function createGameSeek(
   time: number,
@@ -10,7 +13,8 @@ export function createGameSeek(
 ) {
   let seeker = user();
   let stompClient = socket();
-  if (!seeker || !stompClient) return;
+  if (!seeker) throw new Error(USER_NOT_FOUND_ERR_MSG);
+  if (!stompClient) throw new Error(NOT_CONNECTED_TO_SOCKET_ERR_MSG);
 
   let colorToSendToServer = color === "white" ? "w" : "b";
 
@@ -32,7 +36,7 @@ function getRdmColor(): Colors {
 
 export function createGame(gameSeek: GameSeek): void {
   let challenger = user();
-  if (!challenger) return;
+  if (!challenger) throw new Error(USER_NOT_FOUND_ERR_MSG);
   if (gameSeek.color.toLowerCase() === "random") gameSeek.color = getRdmColor();
 
   let whitePlayer, blackPlayer;
@@ -48,7 +52,7 @@ export function createGame(gameSeek: GameSeek): void {
   }
 
   let stompClient = socket();
-  if (!stompClient) return console.error(NOT_CONNECTED_TO_SOCKET_ERR_MSG);
+  if (!stompClient) throw new Error(NOT_CONNECTED_TO_SOCKET_ERR_MSG);
 
   stompClient.publish({
     destination: "/app/api/game",
@@ -100,7 +104,7 @@ export function getActivePlayer(
 
 export function offerDraw(gameId: string, offerer: Colors) {
   let stompClient = socket();
-  if (!stompClient) return console.error(NOT_CONNECTED_TO_SOCKET_ERR_MSG);
+  if (!stompClient) throw new Error(NOT_CONNECTED_TO_SOCKET_ERR_MSG);
   const oppColor = OPP_COLOR[offerer];
   stompClient.publish({
     destination: `/app/api/game/${gameId}/draw`,
@@ -111,7 +115,9 @@ export function offerDraw(gameId: string, offerer: Colors) {
   });
 }
 
-export async function denyDraw(stompClient: Client, gameId: string) {
+export async function denyDraw(gameId: string) {
+  let stompClient = socket();
+  if (!stompClient) throw new Error(NOT_CONNECTED_TO_SOCKET_ERR_MSG);
   stompClient.publish({
     destination: `/app/api/game/${gameId}/draw`,
     body: JSON.stringify({
@@ -121,7 +127,9 @@ export async function denyDraw(stompClient: Client, gameId: string) {
   });
 }
 
-export async function claimDraw(stompClient: Client, gameId: string) {
+export async function claimDraw(gameId: string) {
+  let stompClient = socket();
+  if (!stompClient) throw new Error(NOT_CONNECTED_TO_SOCKET_ERR_MSG);
   stompClient.publish({
     destination: `/app/api/game/${gameId}/resign-draw`,
     body: JSON.stringify({
@@ -131,16 +139,26 @@ export async function claimDraw(stompClient: Client, gameId: string) {
   });
 }
 
-export async function resign(
-  stompClient: Client,
-  gameId: string,
-  resigning: Colors
-) {
+export async function resign(gameId: string, resigning: Colors) {
+  let stompClient = socket();
+  if (!stompClient) throw new Error(NOT_CONNECTED_TO_SOCKET_ERR_MSG);
   stompClient.publish({
     destination: `/app/api/game/${gameId}/resign-draw`,
     body: JSON.stringify({
       winner: OPP_COLOR[resigning],
       result: "resignation",
+    }),
+  });
+}
+
+export function sendMove(gameId: string, playerId: string, move: MoveNotation) {
+  let stompClient = socket();
+  if (!stompClient) throw new Error(NOT_CONNECTED_TO_SOCKET_ERR_MSG);
+  stompClient.publish({
+    destination: `/app/api/game/${gameId}`,
+    body: JSON.stringify({
+      playerId,
+      move,
     }),
   });
 }

@@ -17,6 +17,7 @@ export default function Timer(props: TimerProps) {
       if active, start timer 
       subtract elapsed time from playerTime to get clock 
     */
+    console.log(props.time);
     if (
       !props.active ||
       !props.time ||
@@ -33,13 +34,7 @@ export default function Timer(props: TimerProps) {
     }, 1);
 
     return () => clearInterval(interval);
-  }, [
-    props.active,
-    props.time,
-    props.setTime,
-    props.timeLeftAtTurnStart,
-    props.stampAtTurnStart,
-  ]);
+  });
 
   return (
     <div class={classNames.join(" ")}>

@@ -1,6 +1,6 @@
 /* @refresh reload */
 import { render } from "solid-js/web";
-import initRustChess from "rust_engine";
+import initRustChess, { set_console_error_panic_hook } from "rust_engine";
 
 import "./styles/index.scss";
 import App from "./App";
@@ -21,6 +21,8 @@ if (import.meta.env.DEV && !(root instanceof HTMLElement)) {
 
 (async function () {
   await initRustChess();
+  set_console_error_panic_hook();
+
   useConnectToSocket();
   function useConnectToSocket() {
     onMount(function connectToSocket() {

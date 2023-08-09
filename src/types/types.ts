@@ -10,6 +10,7 @@ export type Time = {
 export type Option<T> = null | T;
 
 export type Colors = "black" | "white";
+export type ColorsChar = "w" | "b";
 
 export type GameSeekColors = Colors | "random";
 
@@ -43,6 +44,9 @@ export type EnumerateFromOne<
 
 // Square is from 0 to 63
 export type Square = number;
+export type SquareNotation = `${(typeof FILES)[number]}${EnumerateFromOne<
+  typeof BOARD_LENGTH
+>}`;
 
 export type DrawRecord = Record<Colors, boolean>;
 
@@ -55,19 +59,18 @@ type _TupleOf<T, N extends number, R extends T[]> = R["length"] extends N
   ? R
   : _TupleOf<T, N, [T, ...R]>;
 
-type MoveNotation = string;
+export type MoveNotation =
+  | `${SquareNotation}${SquareNotation}`
+  | `${SquareNotation}${SquareNotation}${PromotePieceType}`;
 
-export type HistoryArr = Tuple<MoveNotation, 2>[];
+export type HistoryArr = Tuple<MoveNotation | "", 2>[];
 
 // Board is a string with 64 length.
 // Pieces are represented with one character - lowercase for black, uppercase for white.
 // Empty squares are represented by '.'
-export type Board = string[];
+export type BoardVal = PieceType | Uppercase<PieceType> | ".";
+export type Board = BoardVal[];
 
 export type PieceType = (typeof PIECE_TYPES)[number];
 
 export type PromotePieceType = Exclude<PieceType, "k" | "p">;
-
-export type Move =
-  | `${Square}${Square}`
-  | `${Square}${Square}${PromotePieceType}`;

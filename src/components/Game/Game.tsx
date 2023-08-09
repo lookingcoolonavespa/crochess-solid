@@ -7,7 +7,7 @@ import {
   Colors,
   DrawRecord,
   HistoryArr,
-  Move,
+  MoveNotation,
   Option,
   Square,
 } from "../../types/types";
@@ -24,7 +24,7 @@ import { OPP_COLOR } from "../../constants";
 import { Gameboard } from "./Gameboard";
 import Interface from "./Interface/Interface";
 
-function getBoardStates(moves: Move[]): string[] {
+function getBoardStates(moves: MoveNotation[]): string[] {
   let game = GameInterface.from_history("");
 
   let movesIteratedOver = "";
@@ -73,8 +73,8 @@ function parseHistory(history: string): HistoryArr {
     ? []
     : history.split(" ").reduce(function parseIntoPairs(acc, curr, i) {
         if (i % 2 === 0) {
-          acc.push([curr, ""]);
-        } else acc[acc.length - 1][1] = curr;
+          acc.push([curr as MoveNotation, ""]);
+        } else acc[acc.length - 1][1] = curr as MoveNotation;
 
         return acc;
       }, [] as HistoryArr);
@@ -91,7 +91,10 @@ export function Game() {
   let maxTime: number | undefined;
 
   const { id: gameId } = useParams();
-  let activePlayer: Colors | null = null;
+  let activePlayerRef: Option<Colors> = null;
+  function activePlayer() {
+    return activePlayerRef;
+  }
 
   let board: GameInterface = GameInterface.from_history("");
   let boardStates: string[] = [];
@@ -145,7 +148,7 @@ export function Game() {
               };
             }
             maxTime = game.time;
-            activePlayer = getActivePlayer(gameId!, game.w_id, game.b_id);
+            activePlayerRef = getActivePlayer(gameId!, game.w_id, game.b_id);
             const history = game.history?.split(" ");
 
             let activeColorTime =
@@ -160,12 +163,12 @@ export function Game() {
             tmpTimeDetails[activeColor].time = timeLeft;
             tmpTimeDetails[OPP_COLOR[activeColor]].time = inactiveColorTime;
 
-            let moves = (game.moves || "").split(" ") as Move[];
+            let moves = (game.moves || "").split(" ") as MoveNotation[];
             boardStates = getBoardStates(moves);
 
             batch(() => {
               setBoardBeingViewed(history ? history.length - 1 : 0);
-              setGameboardView(() => activePlayer || "white");
+              setGameboardView(() => activePlayer() || "white");
               setTimeDetails(tmpTimeDetails);
               setGameState({
                 activeColor,
@@ -184,18 +187,15 @@ export function Game() {
           case "update": {
             const game = data.payload;
             game.moves = game.moves || "";
-            board = GameInterface.from_history(game.moves);
             let activeColor = board.active_side() as Colors;
 
             let tmpTimeDetails = unwrap(timeDetails);
 
-            const history = game.history?.split(" ");
+            const history = parseHistory(game.history || "");
             let moves = game.moves.split(" ");
-            setBoardBeingViewed((prev) => {
-              if (prev === moves.length - 2) return moves.length - 1;
-              else return prev;
-            });
-            setGameboardView(() => activePlayer || "white");
+            board.make_move(moves[moves.length - 1]);
+            boardStates.push(board.to_string());
+            console.log(boardStates);
 
             let activeColorTime =
               activeColor === "white" ? game.w_time : game.b_time;
@@ -209,31 +209,34 @@ export function Game() {
             tmpTimeDetails[activeColor].time = timeLeft;
             tmpTimeDetails[OPP_COLOR[activeColor]].time = inactiveColorTime;
 
+            let newGameState: Partial<GameState> = {};
             if (data.event === "game over") {
               const gs = data.payload;
-
-              batch(() => {
-                setTimeDetails(tmpTimeDetails);
-                setGameState({
-                  activeColor,
-                  moves,
-                  history: parseHistory(game.history || ""),
-                  gameOverDetails: {
-                    winner: gs.winner,
-                    result: gs.result,
-                  },
-                });
-              });
+              newGameState = {
+                activeColor,
+                moves,
+                history,
+                gameOverDetails: {
+                  winner: gs.winner,
+                  result: gs.result,
+                },
+              };
             } else {
-              batch(() => {
-                setTimeDetails(tmpTimeDetails);
-                setGameState({
-                  activeColor,
-                  moves,
-                  history: parseHistory(game.history || ""),
-                });
-              });
+              newGameState = {
+                activeColor,
+                moves,
+                history,
+              };
             }
+
+            batch(() => {
+              setBoardBeingViewed((prev) => {
+                if (prev === moves.length - 2) return moves.length - 1;
+                else return prev;
+              });
+              setTimeDetails(tmpTimeDetails);
+              setGameState(newGameState);
+            });
 
             break;
           }
@@ -291,7 +294,16 @@ export function Game() {
   function validateMove(to: number): boolean {
     let from = squareToMove();
     if (from === null) return false;
-    return board.validate_move(from, to, gameState.activeColor === "white");
+    return board.validate_move.call(
+      board,
+      from,
+      to,
+      gameState.activeColor === "white"
+    );
+  }
+
+  function currentBoard() {
+    return boardStates[boardBeingViewed() || 0]?.split("");
   }
 
   return (
@@ -299,25 +311,26 @@ export function Game() {
       <div class={styles["game-contents"]}>
         <Gameboard
           view={gameboardView()}
-          board={boardStates[boardBeingViewed() || 0]?.split("")}
-          makeMove={board.make_move}
+          board={currentBoard()}
           squareToMove={squareToMove()}
           setSquareToMove={setSquareToMove}
-          getLegalMoves={board.legal_moves_at_sq}
-          activePlayer={activePlayer}
+          getLegalMoves={board.legal_moves_at_sq.bind(board)}
           validateMove={validateMove}
+          activePlayer={activePlayer}
         />
         <Interface
-          activePlayer={activePlayer}
-          claimDraw={!!activePlayer && gameState.drawRecord[activePlayer]}
+          activePlayer={activePlayer()}
+          claimDraw={!!activePlayer() && gameState.drawRecord[activePlayer()!]}
           offeredDraw={
-            !!activePlayer &&
-            !gameState.drawRecord[activePlayer] &&
-            gameState.drawRecord[OPP_COLOR[activePlayer]]
+            !!activePlayer() &&
+            !gameState.drawRecord[activePlayer()!] &&
+            gameState.drawRecord[OPP_COLOR[activePlayer()!]]
           }
           gameOverDetails={gameState.gameOverDetails}
           whiteDetails={{
-            ...timeDetails.white,
+            time: timeDetails.white.time,
+            timeLeftAtTurnStart: timeDetails.white.timeLeftAtTurnStart,
+            stampAtTurnStart: timeDetails.white.stampAtTurnStart,
             maxTime: maxTime as number,
             setTime: (time: number) => updateTime("white", time),
             active:
@@ -325,7 +338,9 @@ export function Game() {
               gameState.activeColor === "white",
           }}
           blackDetails={{
-            ...timeDetails.black,
+            time: timeDetails.black.time,
+            timeLeftAtTurnStart: timeDetails.black.timeLeftAtTurnStart,
+            stampAtTurnStart: timeDetails.black.stampAtTurnStart,
             maxTime: maxTime as number,
             setTime: (time: number) => updateTime("black", time),
             active:

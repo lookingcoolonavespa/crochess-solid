@@ -1,4 +1,4 @@
-import { JSX, Match, Switch } from "solid-js";
+import { JSX, Match, Show, Switch } from "solid-js";
 import useInputError from "../../hooks/useInputError";
 import { FlatBtn } from "./buttons/FlatBtn";
 import InputField from "./inputs/InputField";
@@ -46,7 +46,7 @@ export function Form(props: FormProps) {
         props.cleanUp = props.cleanUp || close;
         await submitForm(e.currentTarget, props.submitAction, props.cleanUp);
       }}
-      class={props.styles.main}
+      class={props.styles?.main}
     >
       <div class="content">
         <input type="password" hidden />
@@ -124,18 +124,18 @@ export function Form(props: FormProps) {
         })}
       </div>
       <footer>
-        <div class={styles["btn-ctn"]}>
-          {!noCancelBtn && (
+        <div class={props.styles?.["btn-ctn"]}>
+          <Show when={!props.noCancelBtn}>
             <FlatBtn
-              text={cancelBtnText || "Cancel"}
+              text={props.cancelBtnText || "Cancel"}
               underline={true}
               onClick={close}
               size="small"
             />
-          )}
+          </Show>
           <FlatBtn
             type="submit"
-            text={actionBtnText || "Done"}
+            text={props.actionBtnText || "Done"}
             filled={true}
             size="small"
           />

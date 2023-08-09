@@ -42,12 +42,12 @@ interface PieceProps {
 export default function Piece(props: PieceProps) {
   return (
     <div
-      class={`${styles.main} ${styles[props.type]} ${styles[props.color]}`}
+      class={styles.main}
       style={{ "grid-area": props.square }}
       onClick={props.onClick}
     >
       <img
-        src={piecesSVG[props.color][props.type]}
+        src={piecesSVG[props.color][props.type.toLowerCase() as PieceType]}
         alt={`${props.type} ${props.color}`}
       />
     </div>

@@ -4,7 +4,7 @@ import { GameGrid } from "./GameGrid/GameGrid";
 import styles from "../../styles/Home/Home.module.scss";
 import { Modal } from "../ui-elements/Modal";
 import useInputValues from "../../hooks/useInputValues";
-import { Colors, GameSeekColors } from "../../types/types";
+import { Colors, ColorsChar, GameSeekColors } from "../../types/types";
 import { toMilliseconds } from "../../utils/time";
 import { createGameSeek } from "../../utils/game";
 import { Layout } from "../ui-elements/Layout";
@@ -52,8 +52,8 @@ export const Home = () => {
           playerColor: "W" | "B";
         };
         const { gameId, playerColor } = JSON.parse(message.body) as GameIdMsg;
-        setIdToCookie(gameId, playerColor.toLowerCase() as Colors);
-        function setIdToCookie(gameId: string, color: Colors) {
+        setIdToCookie(gameId, playerColor.toLowerCase() as ColorsChar);
+        function setIdToCookie(gameId: string, color: ColorsChar) {
           // set the active playerIds to a cookie so we can tell between active players and spectators
           document.cookie = `${gameId}(${color})=${userId};max-age=${
             60 * 60 * 24
@@ -160,7 +160,7 @@ export const Home = () => {
                 name: "color",
                 type: "radioList",
                 options: [
-                  { value: "black" },
+                  { value: "black", display: "black" },
                   { value: "random" },
                   { value: "white" },
                 ],
@@ -177,18 +177,13 @@ export const Home = () => {
               const gameTime = toMilliseconds({
                 [popupInputValues.time_unit]: popupInputValues.time as number,
               });
-              if (user && socket) {
-                let userId = user();
-                let socketClient = socket();
-                if (!userId || !socketClient) return;
+              if (user() && socket()) {
                 createGameSeek(
-                  socketClient,
                   gameTime,
                   popupInputValues.increment as number,
                   popupInputValues.color === "random"
                     ? "random"
-                    : OPP_COLOR[popupInputValues.color],
-                  userId
+                    : OPP_COLOR[popupInputValues.color]
                 );
               }
             }}
