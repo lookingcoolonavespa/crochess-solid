@@ -33,7 +33,7 @@ export interface FormProps {
   cleanUp?: () => void;
   close: () => void;
   setError: (string: string) => void;
-  styles?: CSSModuleClasses;
+  customStyles?: CSSModuleClasses;
 }
 
 export function Form(props: FormProps) {
@@ -46,7 +46,7 @@ export function Form(props: FormProps) {
         props.cleanUp = props.cleanUp || close;
         await submitForm(e.currentTarget, props.submitAction, props.cleanUp);
       }}
-      class={props.styles?.main}
+      class={props.customStyles?.main}
     >
       <div class="content">
         <input type="password" hidden />
@@ -85,7 +85,7 @@ export function Form(props: FormProps) {
               return (
                 <Switch>
                   <Match when={f.unitsDisplay}>
-                    <div class={props.styles?.with_units}>
+                    <div class="input_wrapper_with_units">
                       <InputField
                         autoFocus={idx === 0}
                         onBlur={onBlur}

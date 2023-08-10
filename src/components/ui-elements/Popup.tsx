@@ -13,20 +13,12 @@ interface PopupProps extends FormProps {
   footerContent?: JSXElement;
   close: () => void;
   isMobile: boolean;
+  customStyles?: CSSModuleClasses;
 }
 
-export function Popup({
-  className,
-  title,
-  subheader,
-  fields,
-  footerContent,
-  close,
-  isMobile,
-  ...props
-}: PopupProps) {
+export function Popup(props: PopupProps) {
   const baseClass = [styles.main];
-  if (className) baseClass.push(className);
+  if (props.className) baseClass.push(props.className);
 
   const c = children(() => props.children);
 
@@ -38,22 +30,22 @@ export function Popup({
       }}
     >
       <header class={styles.header}>
-        <h3>{title}</h3>
-        <Show when={subheader}>
+        <h3>{props.title}</h3>
+        <Show when={props.subheader}>
           <div class="subheader">
-            <span>{subheader}</span>
+            <span>{props.subheader}</span>
           </div>
         </Show>
         <IconBtn icon={<CloseSvg />} onClick={close} className="close-btn" />
       </header>
-      <Show when={fields}>
-        <Form fields={fields} close={close} {...props} />
+      <Show when={props.fields}>
+        <Form {...props} />
       </Show>
       <Show when={props.children}>
-        <>
-          <div class="content">{c()}</div>
-          {footerContent && <footer>{footerContent}</footer>}
-        </>
+        <div class="content">{c()}</div>
+        <Show when={props.footerContent}>
+          <footer>{props.footerContent}</footer>
+        </Show>
       </Show>
     </div>
   );

@@ -4,7 +4,7 @@ import { GameGrid } from "./GameGrid/GameGrid";
 import styles from "../../styles/Home/Home.module.scss";
 import { Modal } from "../ui-elements/Modal";
 import useInputValues from "../../hooks/useInputValues";
-import { Colors, ColorsChar, GameSeekColors } from "../../types/types";
+import { ColorsChar, GameSeekColors } from "../../types/types";
 import { toMilliseconds } from "../../utils/time";
 import { createGameSeek } from "../../utils/game";
 import { Layout } from "../ui-elements/Layout";
@@ -13,6 +13,7 @@ import { OPP_COLOR } from "../../constants";
 import { GameList } from "./GameList/GameList";
 import { Tab } from "./Tab";
 import { user, socket } from "../../globalState";
+import CustomGameFormStyles from "../../styles/Home/CustomGameForm.module.scss";
 
 const GAME_GRID_INDEX = 0;
 const GAME_LIST_INDEX = 1;
@@ -166,6 +167,7 @@ export const Home = () => {
                 ],
               },
             ]}
+            customStyles={CustomGameFormStyles}
             close={closePopup}
             inputValues={popupInputValues}
             handleInputChange={handleInputChange}
