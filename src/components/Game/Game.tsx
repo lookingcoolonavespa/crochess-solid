@@ -305,7 +305,6 @@ export function Game() {
 
   function currentBoard(): Board {
     let boardIdx = boardBeingViewed();
-    console.log(boardIdx);
     return boardStates[boardIdx || 0]?.split("") as Board;
   }
 

@@ -4,6 +4,7 @@ import {
   createMemo,
   createSignal,
   For,
+  Index,
   Setter,
   Show,
 } from "solid-js";
@@ -161,28 +162,24 @@ export function Gameboard(props: GameboardProps) {
         }}
       </For>
       <Show when={props.board}>
-        <For each={props.board} fallback={[]}>
-          {(_, i) => {
-            const char = createMemo(() => {
-              console.log("getting char");
-              let char = props.board[i()];
-              if (
-                PIECE_TYPES.find((piece) => piece === char.toLowerCase()) ===
-                  undefined &&
-                char != "."
-              )
-                throw new Error(
-                  `encountered invalid piece (${char}) on the board.\nboard: ${props.board}\n`
-                );
-              return char;
-            });
+        <Index each={props.board} fallback={[]}>
+          {(char, i) => {
+            console.log("getting char");
+            if (
+              PIECE_TYPES.find((piece) => piece === char().toLowerCase()) ===
+                undefined &&
+              char() != "."
+            )
+              throw new Error(
+                `encountered invalid piece (${char}) on the board.\nboard: ${props.board}\n`
+              );
 
             function getColorOfPiece(): Colors {
               return char().toLowerCase() === char() ? "black" : "white";
             }
 
             function square() {
-              return squaresFromBlackPov[i()];
+              return squaresFromBlackPov[i];
             }
 
             return (
@@ -229,7 +226,7 @@ export function Gameboard(props: GameboardProps) {
               </Show>
             );
           }}
-        </For>
+        </Index>
       </Show>
     </div>
   );
