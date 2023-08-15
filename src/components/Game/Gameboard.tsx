@@ -1,5 +1,12 @@
 import styles from "../../styles/Game/Gameboard.module.scss";
-import { createMemo, createSignal, For, Setter, Show } from "solid-js";
+import {
+  createEffect,
+  createMemo,
+  createSignal,
+  For,
+  Setter,
+  Show,
+} from "solid-js";
 import {
   Board,
   Colors,
@@ -85,6 +92,9 @@ export function Gameboard(props: GameboardProps) {
     resetSquareToMove();
   }
 
+  createEffect(() => {
+    console.log(props.board);
+  });
   return (
     <div class={`${styles.main} ${styles[props.view]}`}>
       <For

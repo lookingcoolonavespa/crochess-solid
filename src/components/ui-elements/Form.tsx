@@ -25,7 +25,7 @@ export interface FormProps {
   fields: Fields[];
   inputValues: { [key: string]: string | number };
   actionBtnText?: string;
-  noCancelBtn: boolean;
+  isCancelBtn: boolean;
   cancelBtnText?: string;
   handleInputChange: JSX.EventHandler<HTMLInputElement, InputEvent>;
   handleSelectChange: JSX.EventHandler<HTMLSelectElement, InputEvent>;
@@ -43,7 +43,8 @@ export function Form(props: FormProps) {
   return (
     <form
       onSubmit={async (e) => {
-        props.cleanUp = props.cleanUp || close;
+        e.preventDefault();
+        props.cleanUp = props.cleanUp || props.close;
         await submitForm(e.currentTarget, props.submitAction, props.cleanUp);
       }}
       class={props.customStyles?.main}
@@ -124,12 +125,12 @@ export function Form(props: FormProps) {
         })}
       </div>
       <footer>
-        <div class={props.styles?.["btn-ctn"]}>
-          <Show when={!props.noCancelBtn}>
+        <div class={props.customStyles?.["btn-ctn"]}>
+          <Show when={props.isCancelBtn}>
             <FlatBtn
               text={props.cancelBtnText || "Cancel"}
               underline={true}
-              onClick={close}
+              onClick={props.close}
               size="small"
             />
           </Show>

@@ -1,10 +1,38 @@
-@use "./mixins";
+@use "../mixins";
 
 $colorBoxSize: 40px;
 
 .main {
   :global(.form-group) {
     margin-bottom: 20px;
+  }
+
+  :global(.input_wrapper_with_units) {
+    display: flex;
+
+    $labelBottomMargin: 1em;
+    :global(.form-group) {
+      flex-basis: 50%;
+
+      :global(.input-wrapper) {
+        display: flex;
+        flex-direction: column;
+      }
+
+      label {
+        margin-bottom: $labelBottomMargin;
+      }
+
+      input {
+        width: 4em;
+      }
+    }
+
+    :global(.select-wrapper) {
+      margin-top: $labelBottomMargin;
+      align-self: center;
+      font-family: "Noto Sans", serif;
+    }
   }
 
   :global(#color) {
@@ -14,9 +42,8 @@ $colorBoxSize: 40px;
     }
 
     :global(.radio-ctn) {
-      @include mixins.flexCenter(row);
-
       column-gap: 20px;
+      @include mixins.flexCenter(row);
     }
 
     :global(.radio-wrapper input) {
@@ -28,7 +55,7 @@ $colorBoxSize: 40px;
       }
 
       &:checked:after {
-        border-color: var(--action-secondary);
+        border-color: var(--main-accent);
       }
 
       &:global(#color1) {
@@ -42,7 +69,7 @@ $colorBoxSize: 40px;
 
         &:checked:after,
         &:checked:before {
-          border-color: var(--action-secondary);
+          border-color: var(--main-accent);
         }
       }
 

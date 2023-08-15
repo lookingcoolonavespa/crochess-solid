@@ -1,4 +1,4 @@
-import { JSX } from "solid-js";
+import { JSX, Show } from "solid-js";
 import { Option } from "../Form";
 
 interface SelectProps {
@@ -9,23 +9,19 @@ interface SelectProps {
   onInput: JSX.EventHandler<HTMLSelectElement, InputEvent>;
 }
 
-export default function Select({
-  options,
-  name,
-  label,
-  value,
-  onInput,
-}: SelectProps) {
+export default function Select(props: SelectProps) {
   return (
     <div class="select-wrapper">
-      {label && <label>{label}</label>}
-      {options && (
-        <select name={name} value={value} onInput={onInput}>
-          {options.map((o) => (
+      <Show when={props.label}>
+        <label>{props.label}</label>
+      </Show>
+      <Show when={props.options}>
+        <select name={props.name} value={props.value} onInput={props.onInput}>
+          {props.options!.map((o) => (
             <option value={o.value}>{o.display}</option>
           ))}
         </select>
-      )}
+      </Show>
     </div>
   );
 }

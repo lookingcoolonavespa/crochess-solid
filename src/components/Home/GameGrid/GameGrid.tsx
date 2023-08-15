@@ -1,7 +1,7 @@
 import styles from "../../../styles/Home/GameGrid.module.scss";
 import { toMilliseconds } from "../../../utils/time";
 import { createSignal } from "solid-js";
-import { user, socket } from "../../../globalState";
+import { user } from "../../../globalState";
 import { Option } from "../../../types/types";
 import { timeControls } from "../../../constants";
 import { createGameSeek } from "../../../utils/game";

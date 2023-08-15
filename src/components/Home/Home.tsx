@@ -161,7 +161,7 @@ export const Home = () => {
                 name: "color",
                 type: "radioList",
                 options: [
-                  { value: "black", display: "black" },
+                  { value: "black" },
                   { value: "random" },
                   { value: "white" },
                 ],
@@ -174,7 +174,7 @@ export const Home = () => {
             handleSelectChange={handleSelectChange}
             isMobile={false}
             actionBtnText="Create game"
-            noCancelBtn={false}
+            isCancelBtn={true}
             submitAction={() => {
               const gameTime = toMilliseconds({
                 [popupInputValues.time_unit]: popupInputValues.time as number,

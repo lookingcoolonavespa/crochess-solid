@@ -1,4 +1,4 @@
-import { JSX } from "solid-js";
+import { JSX, Show } from "solid-js";
 import { Fields } from "../Form";
 import styles from "../../../styles/ui-elements/InputField.module.scss";
 
@@ -11,28 +11,23 @@ interface InputFieldProps extends Fields {
   value: string | number;
 }
 
-export default function InputField({
-  label,
-  error,
-  unitsDisplay,
-  ...inputProps
-}: InputFieldProps) {
-  const rootClasses = [styles.main, "form-group"];
-  if (error) rootClasses.push("error");
-
+export default function InputField(props: InputFieldProps) {
   return (
-    <div class={rootClasses.join(" ")}>
-      <div class={styles.content}>
-        {label && (
+    <div
+      class={["form-group", styles.main].join(" ")}
+      classList={{ error: !!props.error }}
+    >
+      <div class={["input-wrapper", styles.content].join(" ")}>
+        {props.label && (
           <label class="label">
-            <span>{label}</span>
+            <span>{props.label}</span>
           </label>
         )}
-        <div class={styles["input-wrapper"]}>
-          <input {...inputProps} />
-        </div>
+        <input {...props} />
       </div>
-      {error && <span class={styles.error_msg}>{error}</span>}
+      <Show when={props.error}>
+        <span class={styles.error_msg}>{props.error}</span>
+      </Show>
     </div>
   );
 }

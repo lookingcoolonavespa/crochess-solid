@@ -4,6 +4,7 @@ import { useParams } from "@solidjs/router";
 import { batch, createEffect, createSignal, onCleanup } from "solid-js";
 import { createStore, unwrap } from "solid-js/store";
 import {
+  Board,
   Colors,
   DrawRecord,
   HistoryArr,
@@ -195,7 +196,6 @@ export function Game() {
             let moves = game.moves.split(" ");
             board.make_move(moves[moves.length - 1]);
             boardStates.push(board.to_string());
-            console.log(boardStates);
 
             let activeColorTime =
               activeColor === "white" ? game.w_time : game.b_time;
@@ -231,7 +231,8 @@ export function Game() {
 
             batch(() => {
               setBoardBeingViewed((prev) => {
-                if (prev === moves.length - 2) return moves.length - 1;
+                if (moves.length === 1) return 1;
+                else if (prev === moves.length - 2) return prev + 1;
                 else return prev;
               });
               setTimeDetails(tmpTimeDetails);
@@ -302,8 +303,10 @@ export function Game() {
     );
   }
 
-  function currentBoard() {
-    return boardStates[boardBeingViewed() || 0]?.split("");
+  function currentBoard(): Board {
+    let boardIdx = boardBeingViewed();
+    console.log(boardIdx);
+    return boardStates[boardIdx || 0]?.split("") as Board;
   }
 
   return (
