@@ -29,6 +29,7 @@ $timer-height: 50px;
 .timer {
   @include mixins.flexCenter(row);
 
+  position: absolute;
   left: 0;
   height: 50px;
   width: 50%;

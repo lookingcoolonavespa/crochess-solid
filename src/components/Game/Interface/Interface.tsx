@@ -1,6 +1,5 @@
 import Timer, { TimerProps } from "./Timer";
 import styles from "../../../styles/Game/Interface.module.scss";
-import flagIcon from "../../../icons/flag-fill.svg";
 import TimerBar from "./TimerBar";
 import { Colors, HistoryArr } from "../../../types/types";
 import { GameOverDetails } from "../../../types/interfaces";
@@ -8,6 +7,7 @@ import { createEffect, createMemo, createSignal, Show } from "solid-js";
 import GameStatusDisplay from "./GameStatusDisplay";
 import { Controls, createControlBtnObj } from "./Controls";
 import { History } from "./History";
+import { FlagIcon } from "../../icons/FlagIcon";
 
 interface InterfaceProps {
   activePlayer: Colors | null;
@@ -132,7 +132,7 @@ export default function Interface(props: InterfaceProps) {
       offerDraw,
       props.offeredDraw ? "background-action-secondary no_events" : ""
     ),
-    createControlBtnObj(flagIcon, "resign game", undefined, resign),
+    createControlBtnObj(<FlagIcon />, "resign game", undefined, resign),
   ];
 
   return (

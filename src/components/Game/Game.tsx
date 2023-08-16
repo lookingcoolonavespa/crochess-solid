@@ -91,10 +91,7 @@ export function Game() {
   let maxTime: number | undefined;
 
   const { id: gameId } = useParams();
-  let activePlayerRef: Option<Colors> = null;
-  function activePlayer() {
-    return activePlayerRef;
-  }
+  const [activePlayer, setActivePlayer] = createSignal<Option<Colors>>(null);
 
   let board: GameInterface = GameInterface.from_history("");
   let boardStates: string[] = [];
@@ -152,7 +149,7 @@ export function Game() {
               };
             }
             maxTime = game.time;
-            activePlayerRef = getActivePlayer(gameId!, game.w_id, game.b_id);
+            setActivePlayer(getActivePlayer(gameId!, game.w_id, game.b_id));
 
             let activeColorTime =
               activeColor === "white" ? game.w_time : game.b_time;

@@ -1,5 +1,5 @@
 import { useParams } from "@solidjs/router";
-import { createEffect, Match, Setter, Show, Switch } from "solid-js";
+import { Match, Setter, Show, Switch } from "solid-js";
 import { GameStatusInterface } from "../../../types/interfaces";
 import { Colors } from "../../../types/types";
 import { claimDraw, denyDraw, offerDraw, resign } from "../../../utils/game";
@@ -17,7 +17,6 @@ interface GameStatusDisplayProps {
 
 export default function GameStatusDisplay(props: GameStatusDisplayProps) {
   const { id: gameId } = useParams();
-  createEffect(() => console.log(props.status));
 
   return (
     <Show when={props.status}>
