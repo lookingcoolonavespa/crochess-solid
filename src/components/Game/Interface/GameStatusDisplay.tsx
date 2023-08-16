@@ -27,7 +27,7 @@ export default function GameStatusDisplay(props: GameStatusDisplayProps) {
           altText="hide game over message"
           onClick={props.status?.close || (() => props.setStatus(undefined))}
         />
-        <div>
+        <div class="status_display">
           <Switch>
             <Match when={props.status?.type === "gameOver"}>
               <Show when={props.status?.payload}>

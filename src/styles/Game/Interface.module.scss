@@ -19,11 +19,8 @@ $timer-height: 50px;
     flex: 1 1 0;
     padding: 1em 1.5em;
     align-self: stretch;
+    background-color: var(--foreground);
   }
-}
-
-.display_wrapper {
-  position: relative;
 }
 
 .timer {
@@ -59,6 +56,16 @@ $timer-height: 50px;
   width: 100%;
   @include mixins.flexCenter(column);
 
+  :global(.status_display) {
+    padding: 0 2em;
+    line-height: 1.2em;
+    @include mixins.flexCenter(column);
+
+    p {
+      line-height: 1.5em;
+      text-align: center;
+    }
+  }
   :global(.close-btn) {
     position: absolute;
     top: 5px;

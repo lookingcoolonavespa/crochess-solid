@@ -49,8 +49,8 @@ export default function Interface(props: InterfaceProps) {
     gameOver: !!props.gameOverDetails,
     offeredDraw: props.offeredDraw,
     claimDraw: props.claimDraw,
-    resignConfirmation,
-    offerDrawConfirmation,
+    resignConfirmation: resignConfirmation(),
+    offerDrawConfirmation: offerDrawConfirmation(),
   };
   createEffect(() => {
     //
@@ -58,8 +58,8 @@ export default function Interface(props: InterfaceProps) {
       gameOver: !!props.gameOverDetails?.result,
       offeredDraw: props.offeredDraw,
       claimDraw: props.claimDraw,
-      resignConfirmation,
-      offerDrawConfirmation,
+      resignConfirmation: resignConfirmation(),
+      offerDrawConfirmation: offerDrawConfirmation(),
     };
 
     function getChangedVariableThatsTruthy() {
@@ -94,14 +94,7 @@ export default function Interface(props: InterfaceProps) {
       type: statusType,
       payload: statusType === "gameOver" ? props.gameOverDetails : undefined,
     });
-  }, [
-    props.gameOverDetails,
-    resignConfirmation,
-    offerDrawConfirmation,
-    props.claimDraw,
-    props.offeredDraw,
-    props.activePlayer,
-  ]);
+  });
 
   const topTimer = createMemo(() =>
     props.view === "white" ? props.blackDetails : props.whiteDetails

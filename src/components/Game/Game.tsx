@@ -248,6 +248,7 @@ export function Game() {
           }
 
           case "update draw": {
+            console.log(data.payload);
             setGameState({ drawRecord: data.payload });
           }
         }
@@ -310,6 +311,7 @@ export function Game() {
     return validity;
   }
 
+  // storing the board in boardArr so currentBoard returns the same array but just with the contents changed
   let boardArr: Option<Board> = null;
   function currentBoard(): Board {
     let boardIdx = boardBeingViewed();

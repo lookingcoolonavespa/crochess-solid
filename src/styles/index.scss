@@ -96,3 +96,7 @@ button {
   right: 0;
   overflow: auto;
 }
+
+.hover-highlight:hover {
+  filter: brightness(0.9);
+}
