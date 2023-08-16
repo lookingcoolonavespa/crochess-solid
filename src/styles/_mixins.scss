@@ -1,3 +1,4 @@
+@use "sass:math";
 @use "sass:string";
 @use "./functions";
 
@@ -53,7 +54,7 @@
   content: "";
   position: absolute;
   @if $direction {
-    width: $size/2;
+    width: math.div($size, 2);
   } @else {
     width: $size;
   }

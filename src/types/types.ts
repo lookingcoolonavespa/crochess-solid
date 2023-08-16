@@ -74,3 +74,8 @@ export type Board = BoardVal[];
 export type PieceType = (typeof PIECE_TYPES)[number];
 
 export type PromotePieceType = Exclude<PieceType, "k" | "p">;
+
+export type Position = {
+  x: number;
+  y: number;
+};

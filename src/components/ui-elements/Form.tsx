@@ -1,4 +1,4 @@
-import { JSX, Match, Show, Switch } from "solid-js";
+import { For, JSX, Match, Show, Switch } from "solid-js";
 import useInputError from "../../hooks/useInputError";
 import { FlatBtn } from "./buttons/FlatBtn";
 import InputField from "./inputs/InputField";
@@ -47,85 +47,88 @@ export function Form(props: FormProps) {
         props.cleanUp = props.cleanUp || props.close;
         await submitForm(e.currentTarget, props.submitAction, props.cleanUp);
       }}
-      class={props.customStyles?.main}
+      class={props.customStyles?.form}
     >
       <div class="content">
         <input type="password" hidden />
         {/* need this to turn off autocomplete */}
-        {props.fields.map((f: Fields, idx) => {
-          switch (f.type) {
-            case "dropdown":
-              return (
-                <Select
-                  onInput={props.handleSelectChange}
-                  value={(props.inputValues[f.name] as string) || ""}
-                  {...f}
-                />
-              );
-            case "radioList": {
-              return (
-                <RadioList
-                  onInput={props.handleInputChange}
-                  value={(props.inputValues[f.name] as string) || ""}
-                  {...f}
-                />
-              );
-            }
-            default: {
-              const onInput: JSX.EventHandler<HTMLInputElement, InputEvent> = (
-                e
-              ) => {
-                validateInput(e.currentTarget as HTMLInputElement);
-                props.handleInputChange(e);
-              };
-              const onBlur: JSX.FocusEventHandler<
-                HTMLInputElement,
-                FocusEvent
-              > = (e) => validateInput(e.currentTarget);
+        <For each={props.fields}>
+          {(f: Fields, idx) => {
+            switch (f.type) {
+              case "dropdown":
+                return (
+                  <Select
+                    onInput={props.handleSelectChange}
+                    value={(props.inputValues[f.name] as string) || ""}
+                    {...f}
+                  />
+                );
+              case "radioList": {
+                return (
+                  <RadioList
+                    onInput={props.handleInputChange}
+                    value={(props.inputValues[f.name] as string) || ""}
+                    {...f}
+                  />
+                );
+              }
+              default: {
+                const onInput: JSX.EventHandler<
+                  HTMLInputElement,
+                  InputEvent
+                > = (e) => {
+                  validateInput(e.currentTarget as HTMLInputElement);
+                  props.handleInputChange(e);
+                };
+                const onBlur: JSX.FocusEventHandler<
+                  HTMLInputElement,
+                  FocusEvent
+                > = (e) => validateInput(e.currentTarget);
 
-              return (
-                <Switch>
-                  <Match when={f.unitsDisplay}>
-                    <div class="input_wrapper_with_units">
+                return (
+                  <Switch>
+                    <Match when={f.unitsDisplay}>
+                      <div class="input_wrapper_with_units">
+                        <InputField
+                          autoFocus={idx() === 0}
+                          onBlur={onBlur}
+                          error={inputError[f.name]}
+                          onInput={onInput}
+                          value={props.inputValues[f.name] ?? ""}
+                          {...f}
+                          type={f.type}
+                        />
+                        <Select
+                          onInput={props.handleSelectChange}
+                          value={
+                            (props.inputValues[
+                              f.unitsDisplay?.name as string
+                            ] as string) || ""
+                          }
+                          {...f.unitsDisplay}
+                        />
+                      </div>
+                    </Match>
+                    <Match when={!f.unitsDisplay}>
                       <InputField
-                        autoFocus={idx === 0}
+                        autoFocus={idx() === 0}
                         onBlur={onBlur}
-                        error={inputError()[f.name]}
+                        error={inputError[f.name]}
                         onInput={onInput}
-                        value={props.inputValues[f.name] ?? ""}
+                        value={props.inputValues[f.name] || ""}
                         {...f}
                         type={f.type}
                       />
-                      <Select
-                        onInput={props.handleSelectChange}
-                        value={
-                          (props.inputValues[
-                            f.unitsDisplay?.name as string
-                          ] as string) || ""
-                        }
-                        {...f.unitsDisplay}
-                      />
-                    </div>
-                  </Match>
-                  <Match when={!f.unitsDisplay}>
-                    <InputField
-                      autoFocus={idx === 0}
-                      onBlur={onBlur}
-                      error={inputError()[f.name]}
-                      onInput={onInput}
-                      value={props.inputValues[f.name] || ""}
-                      {...f}
-                      type={f.type}
-                    />
-                  </Match>
-                </Switch>
-              );
+                    </Match>
+                  </Switch>
+                );
+              }
             }
-          }
-        })}
+          }}
+        </For>
       </div>
       <footer>
-        <div class={props.customStyles?.["btn-ctn"]}>
+        <div class="btn-ctn">
           <Show when={props.isCancelBtn}>
             <FlatBtn
               text={props.cancelBtnText || "Cancel"}

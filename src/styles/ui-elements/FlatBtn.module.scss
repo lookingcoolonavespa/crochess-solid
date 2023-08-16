@@ -1,0 +1,39 @@
+.main {
+  border-radius: 3px;
+  padding: 2px 16px;
+  font-size: 1em;
+  line-height: 1.1em;
+  font-weight: 500;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  box-sizing: border-box;
+  transition: background-color 0.17s ease, color 0.17s ease;
+
+  &.filled {
+    background-color: var(--text);
+    color: var(--foreground);
+  }
+  &.filled:hover {
+    filter: brightness(1.1);
+  }
+  &:hover .underline-hover {
+    text-decoration: underline;
+  }
+
+  &.hollow {
+    color: var(--main-accent);
+    border: 1px solid var(--main-accent);
+  }
+
+  &.small {
+    height: 38px;
+    min-width: 78px;
+    min-height: 38px;
+  }
+  &.medium {
+    height: 38px;
+    min-width: 96px;
+    min-height: 38px;
+  }
+}

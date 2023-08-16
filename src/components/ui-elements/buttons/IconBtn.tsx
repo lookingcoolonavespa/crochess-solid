@@ -9,13 +9,13 @@ interface IconBtnProps {
 }
 
 export function IconBtn({ className, icon, btnText, onClick }: IconBtnProps) {
-  const rootClasses = ["icon-btn", "btn", "hover-highlight"];
-  if (className) rootClasses.push(className);
-
   return (
-    <div class={rootClasses.join(" ")} onClick={onClick}>
+    <button
+      class={["icon-btn", "btn", "hover-highlight", className].join(" ")}
+      onClick={onClick}
+    >
       <Show when={icon}>{icon}</Show>
       <Show when={btnText}>{btnText}</Show>
-    </div>
+    </button>
   );
 }

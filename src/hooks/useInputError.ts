@@ -3,21 +3,19 @@ import { dynamicValidation } from "../utils/formValidation";
 
 export default function useInputError(inputNames: string[]) {
   const [inputError, setInputError] = createStore(
-    () =>
-      inputNames.reduce((acc: { [key: string]: string }, curr: string) => {
-        acc[curr] = "";
-        return acc;
-      }, {}) // turn inputNames into object keys
+    inputNames.reduce((acc: { [key: string]: string }, curr: string) => {
+      acc[curr] = "";
+      return acc;
+    }, {})
   );
 
   function validateInput(el: HTMLInputElement) {
     const validationStatus = dynamicValidation(el);
 
     const value = validationStatus.error ? validationStatus.error : "";
-    setInputError((prev) => ({
-      ...prev,
+    setInputError({
       [el.name]: value,
-    }));
+    });
 
     return !validationStatus.error;
   }

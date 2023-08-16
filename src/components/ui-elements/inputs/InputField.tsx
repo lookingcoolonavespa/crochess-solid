@@ -1,6 +1,8 @@
-import { JSX, Show } from "solid-js";
+import { createEffect, JSX, Show } from "solid-js";
 import { Fields } from "../Form";
 import styles from "../../../styles/ui-elements/InputField.module.scss";
+import { Tooltip } from "../Tooltip";
+import { Position, Option } from "../../../types/types";
 
 interface InputFieldProps extends Fields {
   error: string;
@@ -26,7 +28,7 @@ export default function InputField(props: InputFieldProps) {
         <input {...props} />
       </div>
       <Show when={props.error}>
-        <span class={styles.error_msg}>{props.error}</span>
+        <Tooltip text={props.error} />
       </Show>
     </div>
   );

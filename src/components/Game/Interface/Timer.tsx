@@ -1,4 +1,4 @@
-import { createEffect, Show } from "solid-js";
+import { createEffect, onCleanup, Show } from "solid-js";
 import { TimeDetails } from "../../../types/interfaces";
 import { formatTime } from "../../../utils/time";
 
@@ -9,15 +9,11 @@ export interface TimerProps extends TimeDetails {
 }
 
 export default function Timer(props: TimerProps) {
-  const classNames = [props.className];
-  if (props.active) classNames.push("active");
-
   createEffect(() => {
     /*
       if active, start timer 
       subtract elapsed time from playerTime to get clock 
     */
-    console.log(props.time);
     if (
       !props.active ||
       !props.time ||
@@ -33,11 +29,11 @@ export default function Timer(props: TimerProps) {
       // if (!timeLeft) return clearInterval(interval);
     }, 1);
 
-    return () => clearInterval(interval);
+    onCleanup(() => clearInterval(interval));
   });
 
   return (
-    <div class={classNames.join(" ")}>
+    <div class={props.className} classList={{ active: props.active }}>
       <Show when={props.time != null} fallback="-:--:--">
         {formatTime(props.time as number)}
       </Show>

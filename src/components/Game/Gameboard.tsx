@@ -1,13 +1,5 @@
 import styles from "../../styles/Game/Gameboard.module.scss";
-import {
-  createEffect,
-  createMemo,
-  createSignal,
-  For,
-  Index,
-  Setter,
-  Show,
-} from "solid-js";
+import { createSignal, For, Index, Setter, Show } from "solid-js";
 import {
   Board,
   Colors,
@@ -93,9 +85,6 @@ export function Gameboard(props: GameboardProps) {
     resetSquareToMove();
   }
 
-  createEffect(() => {
-    console.log(props.board);
-  });
   return (
     <div class={`${styles.main} ${styles[props.view]}`}>
       <For
@@ -164,7 +153,6 @@ export function Gameboard(props: GameboardProps) {
       <Show when={props.board}>
         <Index each={props.board} fallback={[]}>
           {(char, i) => {
-            console.log("getting char");
             if (
               PIECE_TYPES.find((piece) => piece === char().toLowerCase()) ===
                 undefined &&

@@ -1,4 +1,4 @@
-import { Colors, DrawRecord } from "./types";
+import { Colors, DrawRecord, Option } from "./types";
 
 export interface GameOverDetails {
   winner: Colors | null;
@@ -8,12 +8,12 @@ export interface GameOverDetails {
 export interface GameOverGameState extends GameStateSchema, GameOverDetails {}
 
 export interface GameStateSchema {
-  time_stamp_at_turn_start: number;
+  time_stamp_at_turn_start: Option<number>;
   fen: string;
   w_time: number;
   b_time: number;
-  history: string | null;
-  moves: string | null;
+  history: Option<string>;
+  moves: Option<string>;
 }
 
 export interface GameSchema extends GameOverGameState {

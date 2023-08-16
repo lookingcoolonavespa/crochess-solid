@@ -1,14 +1,22 @@
 @use "../mixins";
+@use "sass:math";
 
-$colorBoxSize: 40px;
+$colorBoxSize: 2.5em;
+$timeControlSpacing: 1.4em;
+$sectionSpacing: 1.9em;
 
 .main {
-  :global(.form-group) {
-    margin-bottom: 20px;
+  header {
+    margin-bottom: $sectionSpacing;
   }
 
   :global(.input_wrapper_with_units) {
     display: flex;
+    margin-bottom: $timeControlSpacing;
+
+    + :global(.input_wrapper_with_units) {
+      margin-bottom: $sectionSpacing;
+    }
 
     $labelBottomMargin: 1em;
     :global(.form-group) {
@@ -30,12 +38,14 @@ $colorBoxSize: 40px;
 
     :global(.select-wrapper) {
       margin-top: $labelBottomMargin;
-      align-self: center;
+      align-self: end;
       font-family: "Noto Sans", serif;
     }
   }
 
   :global(#color) {
+    margin-bottom: $sectionSpacing;
+
     :global(.label) {
       text-align: center;
       margin-bottom: 20px;
@@ -64,7 +74,7 @@ $colorBoxSize: 40px;
         }
         &:after {
           @include mixins.circle($colorBoxSize, "right");
-          left: $colorBoxSize/2;
+          left: math.div($colorBoxSize, 2);
         }
 
         &:checked:after,
@@ -94,5 +104,10 @@ $colorBoxSize: 40px;
     border: 0;
     outline: 0;
     cursor: pointer;
+  }
+
+  :global(.btn-ctn) {
+    display: flex;
+    column-gap: 1em;
   }
 }

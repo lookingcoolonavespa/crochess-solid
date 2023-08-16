@@ -2,7 +2,7 @@ import { socket } from "../../globalState";
 import styles from "../../styles/Game/Game.module.scss";
 import { useParams } from "@solidjs/router";
 import { batch, createEffect, createSignal, onCleanup } from "solid-js";
-import { createStore, unwrap } from "solid-js/store";
+import { createStore } from "solid-js/store";
 import {
   Board,
   Colors,
@@ -28,14 +28,13 @@ import Interface from "./Interface/Interface";
 function getBoardStates(moves: MoveNotation[]): string[] {
   let game = GameInterface.from_history("");
 
-  let movesIteratedOver = "";
-  return moves.length === 0
-    ? [game.to_string()]
-    : moves.map((move) => {
-        movesIteratedOver += move;
-        game.make_move(move);
-        return game.to_string();
-      });
+  return [
+    game.to_string(),
+    ...moves.map((move) => {
+      game.make_move(move);
+      return game.to_string();
+    }),
+  ];
 }
 
 type GameState = {
@@ -140,7 +139,11 @@ export function Game() {
             board = GameInterface.from_history(game.moves || "");
             let activeColor = board.active_side() as Colors;
 
-            let tmpTimeDetails = unwrap(timeDetails);
+            let tmpTimeDetails = {
+              white: { ...timeDetails.white },
+              black: { ...timeDetails.black },
+            };
+
             if (!game.result) {
               tmpTimeDetails[activeColor] = {
                 time: tmpTimeDetails[activeColor].time as number,
@@ -150,30 +153,34 @@ export function Game() {
             }
             maxTime = game.time;
             activePlayerRef = getActivePlayer(gameId!, game.w_id, game.b_id);
-            const history = game.history?.split(" ");
 
             let activeColorTime =
               activeColor === "white" ? game.w_time : game.b_time;
             let inactiveColorTime =
               activeColor === "white" ? game.b_time : game.w_time;
             // if fetch happens in middle of game
-            const elapsedTime = Date.now() - game.time_stamp_at_turn_start;
+            const elapsedTime =
+              Date.now() - (game.time_stamp_at_turn_start || Date.now());
             let timeLeft = activeColorTime - elapsedTime;
             if (timeLeft < 0) timeLeft = 0;
 
             tmpTimeDetails[activeColor].time = timeLeft;
+            tmpTimeDetails[activeColor].timeLeftAtTurnStart = timeLeft;
             tmpTimeDetails[OPP_COLOR[activeColor]].time = inactiveColorTime;
 
-            let moves = (game.moves || "").split(" ") as MoveNotation[];
+            let moves: MoveNotation[] = [];
+            if (game.moves) {
+              moves = game.moves.split(" ") as MoveNotation[];
+            }
             boardStates = getBoardStates(moves);
 
             batch(() => {
-              setBoardBeingViewed(history ? history.length - 1 : 0);
+              setBoardBeingViewed(moves?.length || 0);
               setGameboardView(() => activePlayer() || "white");
               setTimeDetails(tmpTimeDetails);
               setGameState({
                 activeColor,
-                moves,
+                moves: moves,
                 history: parseHistory(game.history || ""),
                 drawRecord: game.drawRecord,
                 gameOverDetails: {
@@ -188,26 +195,28 @@ export function Game() {
           case "update": {
             const game = data.payload;
             game.moves = game.moves || "";
-            let activeColor = board.active_side() as Colors;
-
-            let tmpTimeDetails = unwrap(timeDetails);
 
             const history = parseHistory(game.history || "");
             let moves = game.moves.split(" ");
             board.make_move(moves[moves.length - 1]);
             boardStates.push(board.to_string());
 
+            let activeColor = board.active_side() as Colors;
+
             let activeColorTime =
               activeColor === "white" ? game.w_time : game.b_time;
-            let inactiveColorTime =
-              activeColor === "white" ? game.b_time : game.w_time;
-            // if fetch happens in middle of game
-            const elapsedTime = Date.now() - game.time_stamp_at_turn_start;
+            const elapsedTime =
+              Date.now() - (game.time_stamp_at_turn_start || Date.now());
             let timeLeft = activeColorTime - elapsedTime;
             if (timeLeft < 0) timeLeft = 0;
 
+            let tmpTimeDetails = {
+              white: { ...timeDetails.white },
+              black: { ...timeDetails.black },
+            };
             tmpTimeDetails[activeColor].time = timeLeft;
-            tmpTimeDetails[OPP_COLOR[activeColor]].time = inactiveColorTime;
+            tmpTimeDetails[activeColor].timeLeftAtTurnStart = timeLeft;
+            tmpTimeDetails[activeColor].stampAtTurnStart = Date.now();
 
             let newGameState: Partial<GameState> = {};
             if (data.event === "game over") {
@@ -231,8 +240,7 @@ export function Game() {
 
             batch(() => {
               setBoardBeingViewed((prev) => {
-                if (moves.length === 1) return 1;
-                else if (prev === moves.length - 2) return prev + 1;
+                if (prev === moves.length - 1) return prev + 1;
                 else return prev;
               });
               setTimeDetails(tmpTimeDetails);
@@ -295,17 +303,29 @@ export function Game() {
   function validateMove(to: number): boolean {
     let from = squareToMove();
     if (from === null) return false;
-    return board.validate_move.call(
+    const validity = board.validate_move.call(
       board,
       from,
       to,
       gameState.activeColor === "white"
     );
+
+    return validity;
   }
 
+  let boardArr: Option<Board> = null;
   function currentBoard(): Board {
     let boardIdx = boardBeingViewed();
-    return boardStates[boardIdx || 0]?.split("") as Board;
+    if (Array.isArray(boardArr)) {
+      boardArr.splice(
+        0,
+        64,
+        ...(boardStates[boardIdx || 0]?.split("") as Board)
+      );
+    } else {
+      boardArr = boardStates[boardIdx || 0]?.split("") as Board;
+    }
+    return boardArr;
   }
 
   return (

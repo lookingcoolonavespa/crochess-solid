@@ -4,7 +4,7 @@ import flagIcon from "../../../icons/flag-fill.svg";
 import TimerBar from "./TimerBar";
 import { Colors, HistoryArr } from "../../../types/types";
 import { GameOverDetails } from "../../../types/interfaces";
-import { createEffect, createSignal, Show } from "solid-js";
+import { createEffect, createMemo, createSignal, Show } from "solid-js";
 import GameStatusDisplay from "./GameStatusDisplay";
 import { Controls, createControlBtnObj } from "./Controls";
 import { History } from "./History";
@@ -103,10 +103,12 @@ export default function Interface(props: InterfaceProps) {
     props.activePlayer,
   ]);
 
-  const topTimer =
-    props.view === "white" ? props.blackDetails : props.whiteDetails;
-  const bottomTimer =
-    props.view === "white" ? props.whiteDetails : props.blackDetails;
+  const topTimer = createMemo(() =>
+    props.view === "white" ? props.blackDetails : props.whiteDetails
+  );
+  const bottomTimer = createMemo(() =>
+    props.view === "white" ? props.whiteDetails : props.blackDetails
+  );
 
   function resign() {
     setResignConfirmation(true);

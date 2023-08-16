@@ -179,15 +179,14 @@ export const Home = () => {
               const gameTime = toMilliseconds({
                 [popupInputValues.time_unit]: popupInputValues.time as number,
               });
-              if (user() && socket()) {
-                createGameSeek(
-                  gameTime,
-                  popupInputValues.increment as number,
-                  popupInputValues.color === "random"
-                    ? "random"
-                    : OPP_COLOR[popupInputValues.color]
-                );
-              }
+              createGameSeek(
+                gameTime,
+                popupInputValues.increment as number,
+                popupInputValues.color === "random"
+                  ? "random"
+                  : OPP_COLOR[popupInputValues.color]
+              );
+              setActiveTabIndex(1);
             }}
             setError={setError}
           />

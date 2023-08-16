@@ -7,7 +7,6 @@ import { CheckIcon } from "../../icons/CheckIcon";
 import { CloseIcon } from "../../icons/CloseIcon";
 import { FlatBtn } from "../../ui-elements/buttons/FlatBtn";
 import { IconBtn } from "../../ui-elements/buttons/IconBtn";
-import { socket } from "../../../globalState";
 
 interface GameStatusDisplayProps {
   styles: { [key: string]: string };
@@ -59,10 +58,7 @@ export default function GameStatusDisplay(props: GameStatusDisplayProps) {
                   size="small"
                   onClick={() => {
                     try {
-                      if (!socket) return;
-                      let socketClient = socket();
-                      if (!socketClient) return;
-                      resign(socketClient, gameId!, props.activePlayer);
+                      resign(gameId!, props.activePlayer);
                     } catch (err) {
                       console.log(err);
                     }
@@ -78,10 +74,7 @@ export default function GameStatusDisplay(props: GameStatusDisplayProps) {
                   size="small"
                   onClick={() => {
                     try {
-                      if (!socket) return;
-                      let socketClient = socket();
-                      if (!socketClient) return;
-                      denyDraw(socketClient, gameId!);
+                      denyDraw(gameId!);
                       props.setStatus(undefined);
                     } catch (err) {
                       console.log(err);
@@ -93,10 +86,7 @@ export default function GameStatusDisplay(props: GameStatusDisplayProps) {
                   size="small"
                   onClick={() => {
                     try {
-                      if (!socket) return;
-                      let socketClient = socket();
-                      if (!socketClient) return;
-                      claimDraw(socketClient, gameId!);
+                      claimDraw(gameId!);
                     } catch (err) {
                       console.log(err);
                     }
@@ -120,10 +110,7 @@ export default function GameStatusDisplay(props: GameStatusDisplayProps) {
                   size="small"
                   onClick={() => {
                     try {
-                      if (!socket) return;
-                      let socketClient = socket();
-                      if (!socketClient) return;
-                      offerDraw(socketClient, gameId!, props.activePlayer);
+                      offerDraw(gameId!, props.activePlayer);
                     } catch (err) {
                       console.log(err);
                     }

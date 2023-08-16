@@ -2,7 +2,7 @@ import styles from "../../../styles/Home/GameDoor.module.scss";
 import { fromMillisecondsToMinutes } from "../../../utils/time";
 import { GameSeek } from "../../../types/types";
 import { createGame } from "../../../utils/game";
-import { user, socket } from "../../../globalState";
+import { user } from "../../../globalState";
 
 type GameDoorProps = {
   gameSeek: GameSeek;
@@ -39,7 +39,7 @@ export default function GameDoor(props: GameDoorProps) {
         }`,
         props.gameSeek.gameType,
       ].map((t) => (
-        <p class="text-center">{t}</p>
+        <p class={[styles.text, "text-center"].join(" ")}>{t}</p>
       ))}
     </div>
   );

@@ -17,14 +17,11 @@ interface PopupProps extends FormProps {
 }
 
 export function Popup(props: PopupProps) {
-  const baseClass = [styles.main];
-  if (props.className) baseClass.push(props.className);
-
   const c = children(() => props.children);
 
   return (
     <div
-      class={baseClass.join(" ")}
+      class={[styles.main, props.customStyles?.main].join(" ")}
       onClick={(e) => {
         e.stopPropagation();
       }}
@@ -36,7 +33,11 @@ export function Popup(props: PopupProps) {
             <span>{props.subheader}</span>
           </div>
         </Show>
-        <IconBtn icon={<CloseSvg />} onClick={close} className="close-btn" />
+        <IconBtn
+          icon={<CloseSvg />}
+          onClick={props.close}
+          className="close-btn"
+        />
       </header>
       <Show when={props.fields}>
         <Form {...props} />
