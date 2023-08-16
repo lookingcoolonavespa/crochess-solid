@@ -1,5 +1,5 @@
 import { useParams } from "@solidjs/router";
-import { Match, Setter, Show, Switch } from "solid-js";
+import { createEffect, Match, Setter, Show, Switch } from "solid-js";
 import { GameStatusInterface } from "../../../types/interfaces";
 import { Colors } from "../../../types/types";
 import { claimDraw, denyDraw, offerDraw, resign } from "../../../utils/game";
@@ -17,17 +17,18 @@ interface GameStatusDisplayProps {
 
 export default function GameStatusDisplay(props: GameStatusDisplayProps) {
   const { id: gameId } = useParams();
+  createEffect(() => console.log(props.status));
 
   return (
-    <div class={props.styles.game_over_display}>
-      <IconBtn
-        className="close-btn"
-        icon={<CloseIcon />}
-        altText="hide game over message"
-        onClick={props.status?.close || (() => props.setStatus(undefined))}
-      />
-      <div>
-        <Show when={props.status}>
+    <Show when={props.status}>
+      <div class={props.styles.game_over_display}>
+        <IconBtn
+          className="close-btn"
+          icon={<CloseIcon />}
+          altText="hide game over message"
+          onClick={props.status?.close || (() => props.setStatus(undefined))}
+        />
+        <div>
           <Switch>
             <Match when={props.status?.type === "gameOver"}>
               <Show when={props.status?.payload}>
@@ -119,8 +120,8 @@ export default function GameStatusDisplay(props: GameStatusDisplayProps) {
               </div>
             </Match>
           </Switch>
-        </Show>
+        </div>
       </div>
-    </div>
+    </Show>
   );
 }

@@ -19,40 +19,45 @@ interface HistoryProps {
   flipBoard: () => void;
 }
 
-export function History({ moveList, controls, flipBoard }: HistoryProps) {
+export function History(props: HistoryProps) {
   return (
     <section class={styles.main}>
       <Controls
         className={styles["controls-ctn"]}
         list={[
-          createControlBtnObj(<FlipIcon />, "flip board", undefined, flipBoard),
+          createControlBtnObj(
+            <FlipIcon />,
+            "flip board",
+            undefined,
+            props.flipBoard
+          ),
           createControlBtnObj(
             <SkipBackwardIcon />,
             "go to start of game",
             undefined,
-            controls.goBackToStart
+            props.controls.goBackToStart
           ),
           createControlBtnObj(
             <BackIcon />,
             "last move",
             undefined,
-            controls.goBackOneMove
+            props.controls.goBackOneMove
           ),
           createControlBtnObj(
             <ForwardIcon />,
             "next move",
             undefined,
-            controls.goForwardOneMove
+            props.controls.goForwardOneMove
           ),
           createControlBtnObj(
             <SkipForwardIcon />,
             "go to end/current move",
             undefined,
-            controls.goToCurrentMove
+            props.controls.goToCurrentMove
           ),
         ]}
       />
-      <MoveList list={moveList} styles={styles} />
+      <MoveList list={props.moveList} styles={styles} />
     </section>
   );
 }

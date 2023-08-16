@@ -1,34 +1,39 @@
 import { HistoryArr } from "../../../types/types";
 import useScrollOnLoad from "../../../hooks/useScrollToBottom";
-import { onMount } from "solid-js";
+import { For, onMount, Show } from "solid-js";
 
 interface HistoryDisplayProps {
   list: HistoryArr;
   styles: { [key: string]: string };
 }
 
-export function MoveList({ list, styles }: HistoryDisplayProps) {
+export function MoveList(props: HistoryDisplayProps) {
   let scrollEndRef: HTMLElement;
   onMount(() => {
-    useScrollOnLoad(scrollEndRef, list);
+    useScrollOnLoad(scrollEndRef, props.list);
   });
 
   return (
-    <div class={styles.moves_ctn}>
+    <div class={props.styles.moves_ctn}>
       <ol>
-        {list &&
-          list.map((move, i) => {
-            const [wMove, bMove] = move;
-            return (
-              <li class={styles.list_item}>
-                <p class={styles.move_no}>{i + 1}</p>
-                <div class={styles.moves_wrapper}>
-                  <p>{wMove}</p>
-                  {bMove && <p>{bMove}</p>}
-                </div>
-              </li>
-            );
-          })}
+        <Show when={props.list}>
+          <For each={props.list}>
+            {(move, i) => {
+              const [wMove, bMove] = move;
+              return (
+                <li class={props.styles.list_item}>
+                  <p class={props.styles.move_no}>{i() + 1}</p>
+                  <div class={props.styles.moves_wrapper}>
+                    <p>{wMove}</p>
+                    <Show when={!!bMove}>
+                      <p>{bMove}</p>
+                    </Show>
+                  </div>
+                </li>
+              );
+            }}
+          </For>
+        </Show>
       </ol>
       <span ref={scrollEndRef!}></span>
     </div>

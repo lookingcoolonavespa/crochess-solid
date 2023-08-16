@@ -137,8 +137,8 @@ export default function Interface(props: InterfaceProps) {
 
   return (
     <div class={styles.main}>
-      <Timer className={`${styles.timer} ${styles.top}`} {...topTimer} />
-      <TimerBar maxTime={topTimer.maxTime} time={topTimer.time} />
+      <Timer className={`${styles.timer} ${styles.top}`} {...topTimer()} />
+      <TimerBar maxTime={topTimer().maxTime} time={topTimer().time} />
       <div class={styles.display_wrapper}>
         <Show when={status}>
           <GameStatusDisplay
@@ -157,8 +157,11 @@ export default function Interface(props: InterfaceProps) {
       <Show when={props.activePlayer && !props.gameOverDetails.result}>
         <Controls className={styles.main_controls} list={mainControls} />
       </Show>
-      <TimerBar maxTime={bottomTimer.maxTime} time={bottomTimer.time} />
-      <Timer className={`${styles.timer} ${styles.bottom}`} {...bottomTimer} />
+      <TimerBar maxTime={bottomTimer().maxTime} time={bottomTimer().time} />
+      <Timer
+        className={`${styles.timer} ${styles.bottom}`}
+        {...bottomTimer()}
+      />
     </div>
   );
 }
