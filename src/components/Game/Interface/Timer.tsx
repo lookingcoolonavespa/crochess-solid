@@ -35,7 +35,24 @@ export default function Timer(props: TimerProps) {
   return (
     <div class={props.className} classList={{ active: props.active }}>
       <Show when={props.time != null} fallback="-:--:--">
-        {formatTime(props.time as number)}
+        {formatTime(props.time as number)
+          .split(":")
+          .map((val, i, thisArr) => {
+            let isLastVal = false;
+            let isMillisecond = false;
+            if (i === thisArr.length - 1) isLastVal = true;
+            if (i === 2) isMillisecond = true;
+            return (
+              <span
+                classList={{
+                  millisecond: isMillisecond,
+                }}
+              >
+                {val}
+                <Show when={!isLastVal}>:</Show>
+              </span>
+            );
+          })}
       </Show>
     </div>
   );

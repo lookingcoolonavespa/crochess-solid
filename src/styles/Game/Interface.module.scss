@@ -24,8 +24,6 @@ $timer-height: 50px;
 }
 
 .timer {
-  @include mixins.flexCenter(row);
-
   position: absolute;
   left: 0;
   height: 50px;
@@ -35,9 +33,14 @@ $timer-height: 50px;
   font-size: 2em;
   background-color: var(--foreground);
   border-radius: 5px;
+  text-align: center;
 
   &:global(.active) {
     background-color: hsl(86, 70%, 88%);
+  }
+
+  :global(.millisecond) {
+    font-size: 70%;
   }
 }
 .top {

@@ -23,7 +23,7 @@ export function formatTime(ms: number) {
       return duration.format("HH:mm:ss");
     }
     case belowTwentySeconds: {
-      return duration.format("mm:ss:SS");
+      return duration.format("mm:ss:SSS");
     }
     default: {
       return duration.format("mm:ss");
