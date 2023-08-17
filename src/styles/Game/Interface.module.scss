@@ -53,6 +53,7 @@ $timer-height: 50px;
 .game_over_display {
   position: absolute;
   background-color: var(--foreground);
+  border-top: 1px solid white;
   z-index: 5;
   bottom: 0;
   height: 120px;
