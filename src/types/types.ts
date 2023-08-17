@@ -10,7 +10,7 @@ export type Time = {
 export type Option<T> = null | T;
 
 export type Colors = "black" | "white";
-export type ColorsChar = "w" | "b";
+export type ColorsBackend = "w" | "b";
 
 export type GameSeekColors = Colors | "random";
 
@@ -48,6 +48,7 @@ export type SquareNotation = `${(typeof FILES)[number]}${EnumerateFromOne<
   typeof BOARD_LENGTH
 >}`;
 
+export type DrawRecordBackend = Record<ColorsBackend, boolean>;
 export type DrawRecord = Record<Colors, boolean>;
 
 export type Tuple<T, N extends number> = N extends N

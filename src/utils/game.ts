@@ -109,8 +109,8 @@ export function offerDraw(gameId: string, offerer: Colors) {
   stompClient.publish({
     destination: `/app/api/game/${gameId}/draw`,
     body: JSON.stringify({
-      [offerer]: false,
-      [oppColor]: true,
+      [offerer[0]]: false,
+      [oppColor[0]]: true,
     }),
   });
 }
@@ -145,7 +145,7 @@ export async function resign(gameId: string, resigning: Colors) {
   stompClient.publish({
     destination: `/app/api/game/${gameId}/resign-draw`,
     body: JSON.stringify({
-      winner: OPP_COLOR[resigning],
+      winner: OPP_COLOR[resigning][0],
       result: "resignation",
     }),
   });

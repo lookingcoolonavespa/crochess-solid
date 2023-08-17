@@ -32,6 +32,8 @@ interface TimeDetails extends Omit<TimerProps, "className"> {
 }
 
 export default function Interface(props: InterfaceProps) {
+  createEffect(() => console.log(props.offeredDraw));
+  createEffect(() => console.log(props.claimDraw));
   const [status, setStatus] = createSignal<{
     type:
       | "gameOver"

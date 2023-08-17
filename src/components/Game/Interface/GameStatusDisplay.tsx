@@ -95,7 +95,7 @@ export default function GameStatusDisplay(props: GameStatusDisplayProps) {
               </div>
             </Match>
             <Match when={props.status!.type === "offeredDraw"}>
-              <p>You have offered a draw</p>,
+              <p>You have offered a draw</p>
             </Match>
             <Match when={props.status!.type === "offerDrawConfirmation"}>
               <p>Are you sure you want to offer a draw?</p>

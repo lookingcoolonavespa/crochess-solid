@@ -1,10 +1,17 @@
-import { Colors, DrawRecord, Option } from "./types";
+import { Colors, ColorsBackend, DrawRecord, Option } from "./types";
 
 export interface GameOverDetails {
   winner: Colors | null;
   result: "mate" | "draw" | "time" | null;
 }
+export interface GameOverDetailsFromBackend {
+  winner: ColorsBackend | null;
+  result: "mate" | "draw" | "time" | null;
+}
 
+export interface GameOverGameStateFromBackend
+  extends GameStateSchema,
+    GameOverDetailsFromBackend {}
 export interface GameOverGameState extends GameStateSchema, GameOverDetails {}
 
 export interface GameStateSchema {

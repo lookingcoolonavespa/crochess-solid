@@ -7,6 +7,7 @@ import {
   Board,
   Colors,
   DrawRecord,
+  DrawRecordBackend,
   HistoryArr,
   MoveNotation,
   Option,
@@ -16,12 +17,13 @@ import { ClientGameInterface as GameInterface } from "rust_engine";
 import {
   GameOverDetails,
   GameOverGameState,
+  GameOverGameStateFromBackend,
   GameSchema,
   GameStateSchema,
   TimeDetails,
 } from "../../types/interfaces";
 import { getActivePlayer } from "../../utils/game";
-import { OPP_COLOR } from "../../constants";
+import { COLORS_FROM_CHAR, OPP_COLOR } from "../../constants";
 import { Gameboard } from "./Gameboard";
 import Interface from "./Interface/Interface";
 
@@ -118,7 +120,7 @@ export function Game() {
         }
         interface UpdateOnGameOver {
           event: "game over";
-          payload: GameOverGameState;
+          payload: GameOverGameStateFromBackend;
         }
         interface UpdateOnMove {
           event: "update";
@@ -126,7 +128,7 @@ export function Game() {
         }
         interface UpdateDraw {
           event: "update draw";
-          payload: DrawRecord;
+          payload: DrawRecordBackend;
         }
         type Message = Init | UpdateOnMove | UpdateOnGameOver | UpdateDraw;
         const data = JSON.parse(message.body) as Message;
@@ -223,7 +225,8 @@ export function Game() {
                 moves,
                 history,
                 gameOverDetails: {
-                  winner: gs.winner,
+                  winner:
+                    gs.winner != null ? COLORS_FROM_CHAR[gs.winner] : null,
                   result: gs.result,
                 },
               };
@@ -248,8 +251,12 @@ export function Game() {
           }
 
           case "update draw": {
-            console.log(data.payload);
-            setGameState({ drawRecord: data.payload });
+            setGameState({
+              drawRecord: {
+                white: data.payload.w,
+                black: data.payload.b,
+              },
+            });
           }
         }
       }
