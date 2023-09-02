@@ -1,12 +1,11 @@
 import { socket } from "../../globalState";
 import styles from "../../styles/Game/Game.module.scss";
 import { useParams } from "@solidjs/router";
-import { batch, createEffect, createSignal, onCleanup } from "solid-js";
+import { batch, createEffect, createSignal, onCleanup, Show } from "solid-js";
 import { createStore } from "solid-js/store";
 import {
   Board,
   Colors,
-  DrawRecord,
   DrawRecordBackend,
   HistoryArr,
   MoveNotation,
@@ -16,7 +15,6 @@ import {
 import { ClientGameInterface as GameInterface } from "rust_engine";
 import {
   GameOverDetails,
-  GameOverGameState,
   GameOverGameStateFromBackend,
   GameSchema,
   GameStateSchema,
@@ -25,7 +23,9 @@ import {
 import { getActivePlayer } from "../../utils/game";
 import { COLORS_FROM_CHAR, OPP_COLOR } from "../../constants";
 import { Gameboard } from "./Gameboard";
+import { History } from "./Interface/History";
 import Interface from "./Interface/Interface";
+import { useScreenSize } from "../../hooks/useScreenSize";
 
 function getBoardStates(moves: MoveNotation[]): string[] {
   let game = GameInterface.from_history("");
@@ -87,6 +87,7 @@ export function Game() {
   const [boardBeingViewed, setBoardBeingViewed] =
     createSignal<Option<number>>(null);
   const [squareToMove, setSquareToMove] = createSignal<Square | null>(null);
+  const { smallerThanTablet } = useScreenSize();
 
   const [gameState, setGameState] = createStore(defaultGameState);
   const [timeDetails, setTimeDetails] = createStore(defaultTimeDetails);
@@ -94,6 +95,16 @@ export function Game() {
 
   const { id: gameId } = useParams();
   const [activePlayer, setActivePlayer] = createSignal<Option<Colors>>(null);
+  const [interfaceStatus, setInterfaceState] = createSignal<{
+    type:
+      | "gameOver"
+      | "offeredDraw"
+      | "claimDraw"
+      | "offerDrawConfirmation"
+      | "resignConfirmation";
+    payload: GameOverDetails | undefined;
+    close: (() => void) | undefined;
+  }>();
 
   let board: GameInterface = GameInterface.from_history("");
   let boardStates: string[] = [];
@@ -204,6 +215,8 @@ export function Game() {
 
             let activeColorTime =
               activeColor === "white" ? game.w_time : game.b_time;
+            let inactiveColorTime =
+              activeColor === "white" ? game.b_time : game.w_time;
             const elapsedTime =
               Date.now() - (game.time_stamp_at_turn_start || Date.now());
             let timeLeft = activeColorTime - elapsedTime;
@@ -215,7 +228,9 @@ export function Game() {
             };
             tmpTimeDetails[activeColor].time = timeLeft;
             tmpTimeDetails[activeColor].timeLeftAtTurnStart = timeLeft;
-            tmpTimeDetails[activeColor].stampAtTurnStart = Date.now();
+            tmpTimeDetails[activeColor].stampAtTurnStart =
+              game.time_stamp_at_turn_start || Date.now();
+            tmpTimeDetails[OPP_COLOR[activeColor]].time = inactiveColorTime;
 
             let newGameState: Partial<GameState> = {};
             if (data.event === "game over") {
@@ -337,49 +352,73 @@ export function Game() {
   return (
     <main class={styles.main}>
       <div class={styles["game-contents"]}>
-        <Gameboard
-          view={gameboardView()}
-          board={currentBoard()}
-          squareToMove={squareToMove()}
-          setSquareToMove={setSquareToMove}
-          getLegalMoves={board.legal_moves_at_sq.bind(board)}
-          validateMove={validateMove}
-          activePlayer={activePlayer}
-        />
-        <Interface
-          activePlayer={activePlayer()}
-          claimDraw={!!activePlayer() && gameState.drawRecord[activePlayer()!]}
-          offeredDraw={
-            !!activePlayer() &&
-            !gameState.drawRecord[activePlayer()!] &&
-            gameState.drawRecord[OPP_COLOR[activePlayer()!]]
+        <Show
+          when={!smallerThanTablet()}
+          fallback={
+            <>
+              <History
+                moveList={gameState.history}
+                controls={moveListControls}
+                flipBoard={flipBoard}
+              />
+              <Gameboard
+                view={gameboardView()}
+                board={currentBoard()}
+                squareToMove={squareToMove()}
+                setSquareToMove={setSquareToMove}
+                getLegalMoves={board.legal_moves_at_sq.bind(board)}
+                validateMove={validateMove}
+                activePlayer={activePlayer}
+              />
+            </>
           }
-          gameOverDetails={gameState.gameOverDetails}
-          whiteDetails={{
-            time: timeDetails.white.time,
-            timeLeftAtTurnStart: timeDetails.white.timeLeftAtTurnStart,
-            stampAtTurnStart: timeDetails.white.stampAtTurnStart,
-            maxTime: maxTime as number,
-            setTime: (time: number) => updateTime("white", time),
-            active:
-              !gameState.gameOverDetails.result &&
-              gameState.activeColor === "white",
-          }}
-          blackDetails={{
-            time: timeDetails.black.time,
-            timeLeftAtTurnStart: timeDetails.black.timeLeftAtTurnStart,
-            stampAtTurnStart: timeDetails.black.stampAtTurnStart,
-            maxTime: maxTime as number,
-            setTime: (time: number) => updateTime("black", time),
-            active:
-              !gameState.gameOverDetails.result &&
-              gameState.activeColor === "black",
-          }}
-          history={gameState.history}
-          historyControls={moveListControls}
-          view={gameboardView()}
-          flipBoard={flipBoard}
-        />
+        >
+          <Gameboard
+            view={gameboardView()}
+            board={currentBoard()}
+            squareToMove={squareToMove()}
+            setSquareToMove={setSquareToMove}
+            getLegalMoves={board.legal_moves_at_sq.bind(board)}
+            validateMove={validateMove}
+            activePlayer={activePlayer}
+          />
+          <Interface
+            activePlayer={activePlayer()}
+            claimDraw={
+              !!activePlayer() && gameState.drawRecord[activePlayer()!]
+            }
+            offeredDraw={
+              !!activePlayer() &&
+              !gameState.drawRecord[activePlayer()!] &&
+              gameState.drawRecord[OPP_COLOR[activePlayer()!]]
+            }
+            gameOverDetails={gameState.gameOverDetails}
+            whiteDetails={{
+              time: timeDetails.white.time,
+              timeLeftAtTurnStart: timeDetails.white.timeLeftAtTurnStart,
+              stampAtTurnStart: timeDetails.white.stampAtTurnStart,
+              maxTime: maxTime as number,
+              setTime: (time: number) => updateTime("white", time),
+              active:
+                !gameState.gameOverDetails.result &&
+                gameState.activeColor === "white",
+            }}
+            blackDetails={{
+              time: timeDetails.black.time,
+              timeLeftAtTurnStart: timeDetails.black.timeLeftAtTurnStart,
+              stampAtTurnStart: timeDetails.black.stampAtTurnStart,
+              maxTime: maxTime as number,
+              setTime: (time: number) => updateTime("black", time),
+              active:
+                !gameState.gameOverDetails.result &&
+                gameState.activeColor === "black",
+            }}
+            history={gameState.history}
+            historyControls={moveListControls}
+            view={gameboardView()}
+            flipBoard={flipBoard}
+          />
+        </Show>
       </div>
     </main>
   );

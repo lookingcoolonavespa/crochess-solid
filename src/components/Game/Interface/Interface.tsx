@@ -8,6 +8,7 @@ import GameStatusDisplay from "./GameStatusDisplay";
 import { Controls, createControlBtnObj } from "./Controls";
 import { History } from "./History";
 import { FlagIcon } from "../../icons/FlagIcon";
+import { GameStatusControls } from "./GameStatusControls";
 
 interface InterfaceProps {
   activePlayer: Colors | null;
@@ -32,8 +33,6 @@ interface TimeDetails extends Omit<TimerProps, "className"> {
 }
 
 export default function Interface(props: InterfaceProps) {
-  createEffect(() => console.log(props.offeredDraw));
-  createEffect(() => console.log(props.claimDraw));
   const [status, setStatus] = createSignal<{
     type:
       | "gameOver"
@@ -101,6 +100,7 @@ export default function Interface(props: InterfaceProps) {
   const topTimer = createMemo(() =>
     props.view === "white" ? props.blackDetails : props.whiteDetails
   );
+
   const bottomTimer = createMemo(() =>
     props.view === "white" ? props.whiteDetails : props.blackDetails
   );
@@ -118,17 +118,6 @@ export default function Interface(props: InterfaceProps) {
   function cancelDraw() {
     setOfferDrawConfirmation(false);
   }
-
-  const mainControls = [
-    createControlBtnObj(
-      undefined,
-      "offer a draw",
-      "1/2",
-      offerDraw,
-      props.offeredDraw ? "background-action-secondary no_events" : ""
-    ),
-    createControlBtnObj(<FlagIcon />, "resign game", undefined, resign),
-  ];
 
   return (
     <div class={styles.main}>
@@ -150,7 +139,11 @@ export default function Interface(props: InterfaceProps) {
         />
       </div>
       <Show when={props.activePlayer && !props.gameOverDetails.result}>
-        <Controls className={styles.main_controls} list={mainControls} />
+        <GameStatusControls
+          offerDraw={offerDraw}
+          resign={resign}
+          offeredDraw={props.offeredDraw}
+        />
       </Show>
       <TimerBar maxTime={bottomTimer().maxTime} time={bottomTimer().time} />
       <Timer

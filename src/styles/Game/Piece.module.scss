@@ -2,7 +2,10 @@
   display: flex;
   justify-content: center;
   align-items: center;
-  font-size: 40px;
   z-index: 2;
   cursor: pointer;
+
+  img {
+    width: 80%;
+  }
 }
