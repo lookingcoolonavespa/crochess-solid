@@ -1,4 +1,10 @@
 import { PIECE_TYPES } from "../constants";
+import {
+  GameOverDetails,
+  GameOverGameStateFromBackend,
+  GameSchema,
+  GameStateSchema,
+} from "./interfaces";
 
 export type Time = {
   hours?: number;
@@ -80,3 +86,41 @@ export type Position = {
   x: number;
   y: number;
 };
+
+export type GameState = {
+  active: boolean;
+  activeColor: Colors;
+  history: HistoryArr;
+  moves: string[];
+};
+
+export type InterfaceStatus =
+  | {
+      type: "gameOver";
+      payload: GameOverDetails;
+    }
+  | {
+      type:
+        | "offeredDraw"
+        | "claimDraw"
+        | "resignConfirmation"
+        | "offerDrawConfirmation";
+    };
+
+export type Init = {
+  event: "init";
+  payload: GameSchema;
+};
+export type UpdateOnGameOver = {
+  event: "game over";
+  payload: GameOverGameStateFromBackend;
+};
+export type UpdateOnMove = {
+  event: "update";
+  payload: GameStateSchema;
+};
+export type UpdateDraw = {
+  event: "update draw";
+  payload: DrawRecordBackend;
+};
+export type Message = Init | UpdateOnMove | UpdateOnGameOver | UpdateDraw;

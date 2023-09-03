@@ -33,17 +33,6 @@ export interface GameSchema extends GameOverGameState {
   drawRecord: DrawRecord;
 }
 
-export interface GameStatusInterface {
-  type:
-    | "gameOver"
-    | "offeredDraw"
-    | "claimDraw"
-    | "offerDrawConfirmation"
-    | "resignConfirmation";
-  payload: GameOverDetails | undefined;
-  close: (() => void) | undefined;
-}
-
 export interface TimeDetails {
   time: number | null;
   timeLeftAtTurnStart: number | null;

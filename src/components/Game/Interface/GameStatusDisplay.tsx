@@ -1,7 +1,6 @@
 import { useParams } from "@solidjs/router";
 import { Match, Setter, Show, Switch } from "solid-js";
-import { GameStatusInterface } from "../../../types/interfaces";
-import { Colors } from "../../../types/types";
+import { Colors, InterfaceStatus, Option } from "../../../types/types";
 import { claimDraw, denyDraw, offerDraw, resign } from "../../../utils/game";
 import { CheckIcon } from "../../icons/CheckIcon";
 import { CloseIcon } from "../../icons/CloseIcon";
@@ -10,8 +9,9 @@ import { IconBtn } from "../../ui-elements/buttons/IconBtn";
 
 interface GameStatusDisplayProps {
   styles: { [key: string]: string };
-  setStatus: Setter<GameStatusInterface | undefined>;
-  status: GameStatusInterface | undefined;
+  setStatus: Setter<Option<InterfaceStatus>>;
+  resetStatus: () => void;
+  status: Option<InterfaceStatus>;
   activePlayer: Colors;
 }
 
@@ -25,22 +25,22 @@ export default function GameStatusDisplay(props: GameStatusDisplayProps) {
           className="close-btn"
           icon={<CloseIcon />}
           altText="hide game over message"
-          onClick={props.status?.close || (() => props.setStatus(undefined))}
+          onClick={() => props.setStatus(null)}
         />
         <div class="status_display">
           <Switch>
             <Match when={props.status?.type === "gameOver"}>
-              <Show when={props.status?.payload}>
+              <Show when={props.status && "payload" in props.status}>
                 <p>Game over</p>
                 <Show
-                  when={props.status!.payload!.winner != null}
+                  when={(props.status! as any).payload!.winner != null}
                   fallback={<p>Game is a draw</p>}
                 >
                   <p>
-                    {props.status!.payload!.winner === "white"
+                    {(props.status! as any).payload!.winner === "white"
                       ? "White "
                       : "Black "}
-                    won by {props.status!.payload!.result}
+                    won by {(props.status! as any).payload!.result}
                   </p>
                 </Show>
               </Show>
@@ -51,7 +51,7 @@ export default function GameStatusDisplay(props: GameStatusDisplayProps) {
                 <FlatBtn
                   icon={<CloseIcon />}
                   size="small"
-                  onClick={props.status!.close}
+                  onClick={props.resetStatus}
                 />
                 <FlatBtn
                   icon={<CheckIcon />}
@@ -75,7 +75,7 @@ export default function GameStatusDisplay(props: GameStatusDisplayProps) {
                   onClick={() => {
                     try {
                       denyDraw(gameId!);
-                      props.setStatus(undefined);
+                      props.resetStatus();
                     } catch (err) {
                       console.log(err);
                     }
@@ -103,7 +103,7 @@ export default function GameStatusDisplay(props: GameStatusDisplayProps) {
                 <FlatBtn
                   icon={<CloseIcon />}
                   size="small"
-                  onClick={props.status!.close}
+                  onClick={props.resetStatus}
                 />
                 <FlatBtn
                   icon={<CheckIcon />}
