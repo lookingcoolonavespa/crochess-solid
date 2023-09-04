@@ -1,4 +1,4 @@
-import { createEffect } from "solid-js";
+import { createEffect, createRenderEffect, on, onMount } from "solid-js";
 
 export default function useScrollToBottom(
   scrollEndRef: HTMLElement,
@@ -10,9 +10,13 @@ export default function useScrollToBottom(
       block: "end",
       inline: "center",
     });
+    console.log("scrolled");
   }
 
-  createEffect(() => {
-    scrollToBottom();
-  }, [list]);
+  onMount(() => {
+    console.log(scrollEndRef);
+    setTimeout(() => {
+      scrollToBottom();
+    }, 100);
+  });
 }

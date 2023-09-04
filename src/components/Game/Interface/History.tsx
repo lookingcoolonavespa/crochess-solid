@@ -17,7 +17,7 @@ interface HistoryProps {
     goToCurrentMove: () => void;
   };
   flipBoard: () => void;
-  boardBeingViewed: number;
+  moveBeingViewed: number;
 }
 
 export function History(props: HistoryProps) {
@@ -60,7 +60,7 @@ export function History(props: HistoryProps) {
       />
       <MoveList
         list={props.moveList}
-        boardBeingViewed={props.boardBeingViewed}
+        moveBeingViewed={props.moveBeingViewed}
         styles={styles}
       />
     </section>

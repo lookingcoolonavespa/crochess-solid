@@ -7,7 +7,7 @@ import {
   HistoryArr,
   InterfaceStatus,
 } from "../../../types/types";
-import { createMemo, Setter, Show } from "solid-js";
+import { Setter, Show } from "solid-js";
 import GameStatusDisplay from "./GameStatusDisplay";
 import { History } from "./History";
 import { GameStatusControls } from "./GameStatusControls";
@@ -20,8 +20,8 @@ interface InterfaceProps {
   offerDraw: () => void;
   resign: () => void;
   activePlayer: Colors | null;
-  whiteDetails: TimeDetails;
-  blackDetails: TimeDetails;
+  topTimer: TimeDetails;
+  bottomTimer: TimeDetails;
   history: HistoryArr;
   historyControls: {
     goBackToStart: () => void;
@@ -29,8 +29,8 @@ interface InterfaceProps {
     goForwardOneMove: () => void;
     goToCurrentMove: () => void;
   };
-  view: Colors;
   flipBoard: () => void;
+  moveBeingViewed: number;
 }
 
 interface TimeDetails extends Omit<TimerProps, "className"> {
@@ -38,18 +38,10 @@ interface TimeDetails extends Omit<TimerProps, "className"> {
 }
 
 export default function Interface(props: InterfaceProps) {
-  const topTimer = createMemo(() =>
-    props.view === "white" ? props.blackDetails : props.whiteDetails
-  );
-
-  const bottomTimer = createMemo(() =>
-    props.view === "white" ? props.whiteDetails : props.blackDetails
-  );
-
   return (
     <div class={styles.main}>
-      <Timer className={`${styles.timer} ${styles.top}`} {...topTimer()} />
-      <TimerBar maxTime={topTimer().maxTime} time={topTimer().time} />
+      <Timer className={`${styles.timer} ${styles.top}`} {...props.topTimer} />
+      <TimerBar maxTime={props.topTimer.maxTime} time={props.topTimer.time} />
       <div class={styles.display_wrapper}>
         <Show when={props.status}>
           <GameStatusDisplay
@@ -64,6 +56,7 @@ export default function Interface(props: InterfaceProps) {
           moveList={props.history}
           flipBoard={props.flipBoard}
           controls={props.historyControls}
+          moveBeingViewed={props.moveBeingViewed}
         />
       </div>
       <Show when={props.activePlayer && props.gameActive}>
@@ -73,10 +66,13 @@ export default function Interface(props: InterfaceProps) {
           offeredDraw={props.status?.type === "offeredDraw"}
         />
       </Show>
-      <TimerBar maxTime={bottomTimer().maxTime} time={bottomTimer().time} />
+      <TimerBar
+        maxTime={props.bottomTimer.maxTime}
+        time={props.bottomTimer.time}
+      />
       <Timer
         className={`${styles.timer} ${styles.bottom}`}
-        {...bottomTimer()}
+        {...props.bottomTimer}
       />
     </div>
   );

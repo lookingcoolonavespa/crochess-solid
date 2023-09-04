@@ -27,6 +27,7 @@ body,
 body {
   color: var(--text);
   font-family: "Merriweather", serif;
+  font-size: 14px;
 }
 
 ul {
@@ -63,6 +64,7 @@ input[type="search"]::-webkit-search-decoration {
 
 button {
   cursor: pointer;
+  border: none;
 }
 
 #root {

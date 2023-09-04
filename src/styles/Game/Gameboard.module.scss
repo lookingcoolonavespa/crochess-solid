@@ -16,7 +16,7 @@ $grid-width: 8;
   flex-grow: 0;
   aspect-ratio: 1;
 
-  @include mixins.media(smallerThanTablet) {
+  @include mixins.media(phone) {
     flex-basis: 98%;
   }
 

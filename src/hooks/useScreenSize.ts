@@ -12,6 +12,6 @@ export function useScreenSize() {
   });
 
   return {
-    smallerThanTablet: () => browserWidth() < 811,
+    smallerThanDesktop: () => browserWidth() < 1024,
   };
 }

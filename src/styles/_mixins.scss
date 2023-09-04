@@ -79,8 +79,9 @@ $size__site_content_width: 1023px;
 /* Media Queries */
 @function translate-media-condition($c) {
   $condMap: (
-    "smallerThanTablet": "(max-width: #{ $size__site_content_width })",
+    "smallerThanDesktop": "(max-width: #{ $size__site_content_width })",
     "desktop": "(min-width: #{ $size__site_content_width + 1 })",
+    "phone": "(max-width: 480px)",
   );
   @return map-get($condMap, $c);
 }

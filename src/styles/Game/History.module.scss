@@ -24,13 +24,17 @@
   }
 
   .moves_wrapper {
-    padding: 5px 0;
     display: flex;
-    column-gap: 10px;
   }
 
-  @include mixins.media(smallerThanTablet) {
-    height: 2em;
+  .active_move {
+    background-color: rgba(var(--RGB_accent-1), 0.3);
+  }
+
+  @include mixins.media(smallerThanDesktop) {
+    $history_height: 2.3em;
+
+    height: $history_height;
     width: 100%;
     position: absolute;
     top: 0;
@@ -48,10 +52,20 @@
     }
 
     .moves_ctn {
+      display: flex;
+      overflow: scroll;
       ol {
         display: flex;
         column-gap: 1em;
         margin-left: 1em;
+      }
+    }
+
+    .moves_wrapper {
+      padding: 2px 2px;
+
+      > * {
+        padding: 0 5px;
       }
     }
 
@@ -75,12 +89,12 @@
     }
 
     .moves_wrapper {
-      padding: 5px 0;
       flex: 1 1 auto;
 
       > * {
         flex: 1 1 auto;
-        padding: 0 10px;
+        padding: 5px 10px;
+        max-width: 50%;
       }
     }
   }

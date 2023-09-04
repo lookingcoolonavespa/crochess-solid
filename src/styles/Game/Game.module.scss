@@ -17,9 +17,49 @@
   padding: 0 1em;
 
   @include mixins.media(desktop) {
-    max-width: 1300px;
+    max-width: 1150px;
   }
-  @include mixins.media(smallerThanTablet) {
+  @include mixins.media(smallerThanDesktop) {
     height: 100%;
   }
+}
+
+.board_ctn {
+  width: 90%;
+  position: relative;
+}
+
+$timer-height: 1.5em;
+.timer {
+  position: absolute;
+  left: 0;
+  height: $timer-height;
+  width: 50%;
+  max-width: 200px;
+  overflow: hidden;
+  font-family: "Noto Sans", serif;
+  font-size: 1.8em;
+  background-color: var(--foreground);
+  border-radius: 5px;
+  text-align: center;
+  line-height: $timer-height;
+
+  &:global(.active) {
+    background-color: hsl(86, 70%, 88%);
+  }
+
+  :global(.millisecond) {
+    font-size: 70%;
+  }
+
+  @include mixins.media(phone) {
+    max-width: 150px;
+  }
+}
+.top {
+  top: -$timer-height;
+  right: 0;
+}
+.bottom {
+  bottom: -$timer-height;
 }

@@ -4,6 +4,7 @@ import { useParams } from "@solidjs/router";
 import {
   batch,
   createEffect,
+  createMemo,
   createSignal,
   onCleanup,
   Setter,
@@ -33,6 +34,7 @@ import { Gameboard } from "./Gameboard";
 import { History } from "./Interface/History";
 import Interface from "./Interface/Interface";
 import { useScreenSize } from "../../hooks/useScreenSize";
+import Timer from "./Interface/Timer";
 
 let defaultGameState: GameState = {
   active: false,
@@ -57,10 +59,11 @@ let defaultTimeDetails: Record<Colors, TimeDetails> = {
 export function Game() {
   const [gameboardView, setGameboardView] = createSignal<Colors>("white");
   const [squareToMove, setSquareToMove] = createSignal<Square | null>(null);
-  const { smallerThanTablet } = useScreenSize();
+  const { smallerThanDesktop } = useScreenSize();
 
   const [gameState, setGameState] = createStore(defaultGameState);
   const {
+    boardBeingViewed,
     currentBoard,
     moveListControls,
     setBoardStates,
@@ -170,28 +173,64 @@ export function Game() {
     return validity;
   }
 
+  const whiteTimeDetails = () => ({
+    time: timeDetails.white.time,
+    timeLeftAtTurnStart: timeDetails.white.timeLeftAtTurnStart,
+    stampAtTurnStart: timeDetails.white.stampAtTurnStart,
+    maxTime: maxTime as number,
+    setTime: (time: number) => updateTime("white", time),
+    active: gameState.active && gameState.activeColor === "white",
+  });
+
+  const blackTimeDetails = () => ({
+    time: timeDetails.black.time,
+    timeLeftAtTurnStart: timeDetails.black.timeLeftAtTurnStart,
+    stampAtTurnStart: timeDetails.black.stampAtTurnStart,
+    maxTime: maxTime as number,
+    setTime: (time: number) => updateTime("black", time),
+    active: gameState.active && gameState.activeColor === "black",
+  });
+
+  const topTimer = createMemo(() =>
+    gameboardView() === "white" ? blackTimeDetails() : whiteTimeDetails()
+  );
+
+  const bottomTimer = createMemo(() =>
+    gameboardView() === "white" ? whiteTimeDetails() : blackTimeDetails()
+  );
+
   return (
     <main class={styles.main}>
       <div class={styles["game-contents"]}>
         <Show
-          when={!smallerThanTablet()}
+          when={!smallerThanDesktop()}
           fallback={
             <>
               <History
                 moveList={gameState.history}
                 controls={moveListControls}
                 flipBoard={flipBoard}
-                boardBeingViewed={boardBeingViewed()}
+                moveBeingViewed={boardBeingViewed() - 1}
               />
-              <Gameboard
-                view={gameboardView()}
-                board={currentBoard()}
-                squareToMove={squareToMove()}
-                setSquareToMove={setSquareToMove}
-                getLegalMoves={board.legal_moves_at_sq.bind(board)}
-                validateMove={validateMove}
-                activePlayer={activePlayer}
-              />
+              <div class={styles.board_ctn}>
+                <Timer
+                  className={`${styles.timer} ${styles.top}`}
+                  {...topTimer()}
+                />
+                <Gameboard
+                  view={gameboardView()}
+                  board={currentBoard()}
+                  squareToMove={squareToMove()}
+                  setSquareToMove={setSquareToMove}
+                  getLegalMoves={board.legal_moves_at_sq.bind(board)}
+                  validateMove={validateMove}
+                  activePlayer={activePlayer}
+                />
+                <Timer
+                  className={`${styles.timer} ${styles.bottom}`}
+                  {...bottomTimer()}
+                />
+              </div>
             </>
           }
         >
@@ -212,26 +251,12 @@ export function Game() {
             offerDraw={offerDraw}
             resetStatus={resetStatus}
             activePlayer={activePlayer()}
-            whiteDetails={{
-              time: timeDetails.white.time,
-              timeLeftAtTurnStart: timeDetails.white.timeLeftAtTurnStart,
-              stampAtTurnStart: timeDetails.white.stampAtTurnStart,
-              maxTime: maxTime as number,
-              setTime: (time: number) => updateTime("white", time),
-              active: gameState.active && gameState.activeColor === "white",
-            }}
-            blackDetails={{
-              time: timeDetails.black.time,
-              timeLeftAtTurnStart: timeDetails.black.timeLeftAtTurnStart,
-              stampAtTurnStart: timeDetails.black.stampAtTurnStart,
-              maxTime: maxTime as number,
-              setTime: (time: number) => updateTime("black", time),
-              active: gameState.active && gameState.activeColor === "black",
-            }}
+            topTimer={topTimer()}
+            bottomTimer={bottomTimer()}
             history={gameState.history}
             historyControls={moveListControls}
-            view={gameboardView()}
             flipBoard={flipBoard}
+            moveBeingViewed={boardBeingViewed() - 1}
           />
         </Show>
       </div>
@@ -292,8 +317,7 @@ function useInterfaceStatus() {
 }
 
 function useBoardBeingViewed(gameState: GameState) {
-  const [boardBeingViewed, setBoardBeingViewed] =
-    createSignal<Option<number>>(null);
+  const [boardBeingViewed, setBoardBeingViewed] = createSignal<number>(0);
   const [boardStates, setBoardStates] = createSignal<string[]>([]);
 
   // storing the board in boardArr so currentBoard returns the same array but just with the contents changed
@@ -329,13 +353,13 @@ function useBoardBeingViewed(gameState: GameState) {
       if (!gameState.moves.length) return;
       setBoardBeingViewed((prev) => {
         if (prev === null) return prev;
-        if (prev === gameState.moves.length - 1) return prev;
+        if (prev === gameState.moves.length) return prev;
         return prev + 1;
       });
     },
     goToCurrentMove: () => {
       if (!gameState.moves.length) return;
-      setBoardBeingViewed(gameState.moves.length - 1);
+      setBoardBeingViewed(gameState.moves.length);
     },
   };
 
