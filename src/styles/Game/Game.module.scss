@@ -27,6 +27,14 @@
 .board_ctn {
   width: 90%;
   position: relative;
+
+  @include mixins.media(smallerThanDesktop) {
+    width: 80%;
+  }
+
+  @include mixins.media(phone) {
+    width: 90%;
+  }
 }
 
 $timer-height: 1.5em;

@@ -40,6 +40,7 @@ const FILE_BITS = 7;
 type GameboardProps = {
   view: Colors;
   board: Board;
+  latestBoardBeingViewed: boolean;
   squareToMove: Square | null;
   setSquareToMove: Setter<Square | null>;
   getLegalMoves: (square: Square) => Uint32Array;
@@ -178,7 +179,8 @@ export function Gameboard(props: GameboardProps) {
                   square={ClientGameInterface.name_of_square(square())}
                   type={char() as PieceType}
                   onClick={() => {
-                    if (promotePopupSquare()) return;
+                    if (promotePopupSquare() || !props.latestBoardBeingViewed)
+                      return;
                     if (
                       props.activePlayer() !== null &&
                       getColorOfPiece() !== props.activePlayer()

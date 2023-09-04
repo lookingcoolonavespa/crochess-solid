@@ -16,10 +16,6 @@ $grid-width: 8;
   flex-grow: 0;
   aspect-ratio: 1;
 
-  @include mixins.media(phone) {
-    flex-basis: 98%;
-  }
-
   :global(.label) {
     margin: 3px;
     color: $light-square;

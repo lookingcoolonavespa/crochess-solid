@@ -28,6 +28,14 @@ body {
   color: var(--text);
   font-family: "Merriweather", serif;
   font-size: 14px;
+
+  @include mixins.media(smallerThanDesktop) {
+    font-size: 13px;
+  }
+
+  @include mixins.media(phone) {
+    font-size: 10px;
+  }
 }
 
 ul {

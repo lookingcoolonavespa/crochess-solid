@@ -218,6 +218,9 @@ export function Game() {
                   {...topTimer()}
                 />
                 <Gameboard
+                  latestBoardBeingViewed={
+                    boardBeingViewed() === gameState.moves.length + 1
+                  }
                   view={gameboardView()}
                   board={currentBoard()}
                   squareToMove={squareToMove()}
@@ -235,6 +238,9 @@ export function Game() {
           }
         >
           <Gameboard
+            latestBoardBeingViewed={
+              boardBeingViewed() === gameState.moves.length + 1
+            }
             view={gameboardView()}
             board={currentBoard()}
             squareToMove={squareToMove()}
