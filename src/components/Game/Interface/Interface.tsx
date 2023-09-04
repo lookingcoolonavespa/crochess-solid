@@ -13,6 +13,7 @@ import { History } from "./History";
 import { GameStatusControls } from "./GameStatusControls";
 
 interface InterfaceProps {
+  gameActive: boolean;
   status: Option<InterfaceStatus>;
   setStatus: Setter<Option<InterfaceStatus>>;
   resetStatus: () => void;
@@ -65,7 +66,7 @@ export default function Interface(props: InterfaceProps) {
           controls={props.historyControls}
         />
       </div>
-      <Show when={props.activePlayer && props.status?.type != "gameOver"}>
+      <Show when={props.activePlayer && props.gameActive}>
         <GameStatusControls
           offerDraw={props.offerDraw}
           resign={props.resign}

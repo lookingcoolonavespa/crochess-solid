@@ -4,6 +4,7 @@ import { For, onMount, Show } from "solid-js";
 
 interface HistoryDisplayProps {
   list: HistoryArr;
+  boardBeingViewed: number;
   styles: { [key: string]: string };
 }
 
@@ -39,3 +40,10 @@ export function MoveList(props: HistoryDisplayProps) {
     </div>
   );
 }
+
+function get2dArrIndexFrom1dArrIndex(oneDIndex: number): [number, number] {
+  const firstArrIdx = Math.floor(oneDIndex / 2);
+  return [firstArrIdx, firstArrIdx === oneDIndex ? 0 : 1];
+}
+
+export const TESTING = { get2dArrIndexFrom1dArrIndex };

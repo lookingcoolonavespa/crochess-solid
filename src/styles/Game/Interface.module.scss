@@ -1,38 +1,39 @@
 @use "../mixins";
 
-$timer-height: 50px;
+$timer-height: 1.7em;
 
 .main {
   position: relative;
   width: 100%;
-  max-width: 400px;
+  max-width: 370px;
   background-color: var(--foreground);
-  box-shadow: var(--box-shadow);
   z-index: 3;
-}
+  flex-grow: 0;
 
-.main_controls {
-  @include mixins.flexCenter(row);
+  :global(.game_status_controls) {
+    @include mixins.flexCenter(row);
 
-  :global(.icon-btn) {
-    flex: 1 1 0;
-    padding: 1em 1.5em;
-    align-self: stretch;
-    background-color: var(--foreground);
+    :global(.icon-btn) {
+      flex: 1 1 0;
+      padding: 1em 1.5em;
+      align-self: stretch;
+      background-color: var(--foreground);
+    }
   }
 }
 
 .timer {
   position: absolute;
   left: 0;
-  height: 50px;
+  height: $timer-height;
   width: 50%;
   overflow: hidden;
   font-family: "Noto Sans", serif;
-  font-size: 2em;
+  font-size: 2.2em;
   background-color: var(--foreground);
   border-radius: 5px;
   text-align: center;
+  line-height: $timer-height;
 
   &:global(.active) {
     background-color: hsl(86, 70%, 88%);

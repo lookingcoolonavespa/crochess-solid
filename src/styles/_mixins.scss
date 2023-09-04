@@ -74,3 +74,29 @@
   }
   box-sizing: border-box;
 }
+
+$size__site_content_width: 1023px;
+/* Media Queries */
+@function translate-media-condition($c) {
+  $condMap: (
+    "smallerThanTablet": "(max-width: #{ $size__site_content_width })",
+    "desktop": "(min-width: #{ $size__site_content_width + 1 })",
+  );
+  @return map-get($condMap, $c);
+}
+
+// The mdia mixin
+@mixin media($args...) {
+  $query: "";
+  @each $arg in $args {
+    $op: "";
+    @if ($query != "") {
+      $op: " and ";
+    }
+    $query: $query + $op + translate-media-condition($arg);
+  }
+  @debug $query;
+  @media #{$query} {
+    @content;
+  }
+}

@@ -61,7 +61,6 @@ export function Game() {
 
   const [gameState, setGameState] = createStore(defaultGameState);
   const {
-    boardStates,
     currentBoard,
     moveListControls,
     setBoardStates,
@@ -124,7 +123,7 @@ export function Game() {
             onGameUpdate(
               data,
               board,
-              boardStates().length,
+              gameState.moves.length,
               timeDetails,
               setTimeDetails,
               setBoardBeingViewed,
@@ -182,6 +181,7 @@ export function Game() {
                 moveList={gameState.history}
                 controls={moveListControls}
                 flipBoard={flipBoard}
+                boardBeingViewed={boardBeingViewed()}
               />
               <Gameboard
                 view={gameboardView()}
@@ -205,6 +205,7 @@ export function Game() {
             activePlayer={activePlayer}
           />
           <Interface
+            gameActive={gameState.active}
             status={interfaceStatus()}
             setStatus={setInterfaceStatus}
             resign={resign}
@@ -339,7 +340,7 @@ function useBoardBeingViewed(gameState: GameState) {
   };
 
   return {
-    boardStates,
+    boardBeingViewed,
     currentBoard,
     moveListControls,
     setBoardStates,
@@ -433,11 +434,10 @@ function initState(
 
   return { board, maxTime: game.time };
 }
-
 function onGameUpdate(
   data: UpdateOnGameOver | UpdateOnMove,
   board: GameInterface,
-  boardStateCount: number,
+  movesSoFar: number,
   timeDetails: Record<Colors, TimeDetails>,
   setTimeDetails: SetStoreFunction<Record<Colors, TimeDetails>>,
   setBoardBeingViewed: Setter<number>,
@@ -450,7 +450,7 @@ function onGameUpdate(
 
   const history = parseHistory(game.history || "");
   let moves = game.moves.split(" ");
-  if (moves.length != boardStateCount) board.make_move(moves[moves.length - 1]);
+  if (moves.length != movesSoFar) board.make_move(moves[moves.length - 1]);
 
   let activeColor = board.active_side() as Colors;
 

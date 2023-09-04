@@ -1,9 +1,10 @@
+@use "../mixins";
 @use "sass:math";
 
 $light-square: #f0d9b5;
 $dark-square: #b58863;
 $square-size: 90px;
-$grid-size: 100%;
+$grid-size: 80%;
 $grid-width: 8;
 
 .main {
@@ -12,7 +13,12 @@ $grid-width: 8;
   grid-template-rows: repeat($grid-width, 1fr);
   justify-content: center;
   flex-basis: $grid-size;
+  flex-grow: 0;
   aspect-ratio: 1;
+
+  @include mixins.media(smallerThanTablet) {
+    flex-basis: 98%;
+  }
 
   :global(.label) {
     margin: 3px;

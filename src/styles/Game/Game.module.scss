@@ -1,3 +1,5 @@
+@use "../mixins";
+
 .main {
   height: 100%;
   display: flex;
@@ -9,5 +11,15 @@
   position: relative;
   display: flex;
   align-items: center;
+  justify-content: center;
+  column-gap: 1em;
+  width: 100%;
   padding: 0 1em;
+
+  @include mixins.media(desktop) {
+    max-width: 1300px;
+  }
+  @include mixins.media(smallerThanTablet) {
+    height: 100%;
+  }
 }
