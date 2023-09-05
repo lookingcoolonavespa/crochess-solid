@@ -4,9 +4,9 @@ import { GameGrid } from "./GameGrid/GameGrid";
 import styles from "../../styles/Home/Home.module.scss";
 import { Modal } from "../ui-elements/Modal";
 import useInputValues from "../../hooks/useInputValues";
-import { ColorsChar, GameSeekColors } from "../../types/types";
+import { ColorsBackend, GameSeekColors } from "../../types/types";
 import { toMilliseconds } from "../../utils/time";
-import { createGameSeek } from "../../utils/game";
+import { createGameSeek, initPlayEngine } from "../../utils/game";
 import { Layout } from "../ui-elements/Layout";
 import { Popup } from "../ui-elements/Popup";
 import { OPP_COLOR } from "../../constants";
@@ -14,9 +14,14 @@ import { GameList } from "./GameList/GameList";
 import { Tab } from "./Tab";
 import { user, socket } from "../../globalState";
 import CustomGameFormStyles from "../../styles/Home/CustomGameForm.module.scss";
+import { FlatBtn } from "../ui-elements/buttons/FlatBtn";
+import { wasmSupported } from "../../utils/wasmSupported";
 
 const GAME_GRID_INDEX = 0;
 const GAME_LIST_INDEX = 1;
+const PLAY_ENGINE_INDEX = 2;
+
+const wasmIsSupported = wasmSupported();
 
 export const Home = () => {
   const [popup, setPopup] = createSignal(false);
@@ -53,8 +58,8 @@ export const Home = () => {
           playerColor: "W" | "B";
         };
         const { gameId, playerColor } = JSON.parse(message.body) as GameIdMsg;
-        setIdToCookie(gameId, playerColor.toLowerCase() as ColorsChar);
-        function setIdToCookie(gameId: string, color: ColorsChar) {
+        setIdToCookie(gameId, playerColor.toLowerCase() as ColorsBackend);
+        function setIdToCookie(gameId: string, color: ColorsBackend) {
           // set the active playerIds to a cookie so we can tell between active players and spectators
           document.cookie = `${gameId}(${color})=${userId};max-age=${
             60 * 60 * 24
@@ -105,11 +110,8 @@ export const Home = () => {
               text="Join a game"
             />
             <Tab
-              active={false}
-              onClick={() => {
-                if (!user) return;
-                // initPlayEngine(socket!, user);
-              }}
+              active={activeTabIndex() === PLAY_ENGINE_INDEX}
+              onClick={moveToTab}
               text="Play against engine"
             />
           </ul>
@@ -120,6 +122,29 @@ export const Home = () => {
             createCustomGame={showPopup}
           />
           <GameList active={activeTabIndex() === GAME_LIST_INDEX} />
+          <div
+            class={[styles.tab_content, styles.play_engine_tab_content].join(
+              " "
+            )}
+            classList={{
+              inactive: activeTabIndex() != PLAY_ENGINE_INDEX,
+            }}
+          >
+            <FlatBtn
+              type="button"
+              text="Start Game"
+              filled={true}
+              size="medium"
+              onClick={() => initPlayEngine()}
+              inactive={!wasmIsSupported}
+            />
+            <Show when={!wasmIsSupported}>
+              <p>
+                Unable to play the engine because wasm is not supported in your
+                browser.
+              </p>
+            </Show>
+          </div>
         </div>
       </div>
       <Show when={popup()}>

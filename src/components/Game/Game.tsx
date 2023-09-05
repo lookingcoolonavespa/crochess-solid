@@ -63,6 +63,7 @@ export function Game() {
 
   const [gameState, setGameState] = createStore(defaultGameState);
   const {
+    boardStates,
     boardBeingViewed,
     currentBoard,
     moveListControls,
@@ -210,7 +211,10 @@ export function Game() {
                 moveList={gameState.history}
                 controls={moveListControls}
                 flipBoard={flipBoard}
-                moveBeingViewed={boardBeingViewed() - 1}
+                moveBeingViewed={
+                  boardBeingViewed() -
+                  (boardStates().length - gameState.moves.length)
+                }
               />
               <div class={styles.board_ctn}>
                 <Timer
@@ -219,7 +223,9 @@ export function Game() {
                 />
                 <Gameboard
                   latestBoardBeingViewed={
-                    boardBeingViewed() === gameState.moves.length + 1
+                    boardBeingViewed() ===
+                    boardStates().length -
+                      (boardStates().length - gameState.moves.length)
                   }
                   view={gameboardView()}
                   board={currentBoard()}
@@ -239,7 +245,9 @@ export function Game() {
         >
           <Gameboard
             latestBoardBeingViewed={
-              boardBeingViewed() === gameState.moves.length + 1
+              boardBeingViewed() ===
+              boardStates().length -
+                (boardStates().length - gameState.moves.length)
             }
             view={gameboardView()}
             board={currentBoard()}
@@ -262,7 +270,10 @@ export function Game() {
             history={gameState.history}
             historyControls={moveListControls}
             flipBoard={flipBoard}
-            moveBeingViewed={boardBeingViewed() - 1}
+            moveBeingViewed={
+              boardBeingViewed() -
+              (boardStates().length - gameState.moves.length)
+            }
           />
         </Show>
       </div>
@@ -370,6 +381,7 @@ function useBoardBeingViewed(gameState: GameState) {
   };
 
   return {
+    boardStates,
     boardBeingViewed,
     currentBoard,
     moveListControls,

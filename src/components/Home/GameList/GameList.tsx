@@ -15,7 +15,7 @@ export function GameList(props: GameListProps) {
     <div
       class={styles.game_list_main}
       classList={{
-        [styles.inactive]: !props.active,
+        inactive: !props.active,
       }}
     >
       <header class={["section-header", styles.header].join(" ")}>

@@ -65,6 +65,36 @@ export function createGame(gameSeek: GameSeek): void {
   });
 }
 
+export function initPlayEngine() {
+  if (!user()) throw new Error(USER_NOT_FOUND_ERR_MSG);
+
+  const userColor = getRdmColor();
+  let whitePlayer, blackPlayer;
+  switch (userColor) {
+    case "white":
+      whitePlayer = user();
+      blackPlayer = "engine";
+      break;
+    case "black":
+      whitePlayer = "engine";
+      blackPlayer = user();
+      break;
+  }
+
+  let stompClient = socket();
+  if (!stompClient) throw new Error(NOT_CONNECTED_TO_SOCKET_ERR_MSG);
+
+  stompClient.publish({
+    destination: "/app/api/game",
+    body: JSON.stringify({
+      w_id: whitePlayer,
+      b_id: blackPlayer,
+      time: 1,
+      increment: 0,
+    }),
+  });
+}
+
 export function parseCookies(cookie: string): { [key: string]: string } {
   const cookies = cookie.split("; ");
   return cookies
@@ -161,4 +191,8 @@ export function sendMove(gameId: string, playerId: string, move: MoveNotation) {
       move,
     }),
   });
+}
+
+export function sendEngineMove(gameId: string, move: MoveNotation) {
+  sendMove(gameId, "engine", move);
 }

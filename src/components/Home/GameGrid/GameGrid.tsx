@@ -19,7 +19,7 @@ export const GameGrid = (props: GameGridProps) => {
     <div
       class={[styles.game_grid_main, "foreground"].join(" ")}
       classList={{
-        [styles.inactive]: !props.active,
+        inactive: !props.active,
       }}
     >
       {timeControls.map((tc, i) => {

@@ -13,10 +13,6 @@ $grid_cols: 3;
   border-radius: 3px;
 }
 
-.inactive {
-  opacity: 0;
-}
-
 .grid_box {
   width: calc(100% / $grid_cols - $grid_gap);
   aspect-ratio: 1;

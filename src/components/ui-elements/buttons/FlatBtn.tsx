@@ -11,18 +11,19 @@ interface FlatBtnProps {
   size: "small" | "medium";
   onClick?: JSX.EventHandler<HTMLButtonElement, MouseEvent>;
   icon?: JSX.Element;
+  inactive?: boolean;
 }
 
 export function FlatBtn(props: FlatBtnProps) {
-  const classes = [styles.main, styles[props.size]];
-  if (props.className) classes.push(props.className);
-  if (props.filled) classes.push(styles.filled);
-  if (props.hollow) classes.push(styles.hollow);
-
   return (
     <button
       type={props.type || "button"}
-      class={classes.join(" ")}
+      class={[styles.main, styles[props.size], props.className || ""].join(" ")}
+      classList={{
+        [styles.filled]: props.filled,
+        [styles.hollow]: props.hollow,
+        [styles.inactive]: props.inactive,
+      }}
       onClick={props.onClick}
     >
       <Show when={props.text}>
