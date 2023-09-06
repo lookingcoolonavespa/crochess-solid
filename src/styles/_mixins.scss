@@ -96,7 +96,6 @@ $size__site_content_width: 1023px;
     }
     $query: $query + $op + translate-media-condition($arg);
   }
-  @debug $query;
   @media #{$query} {
     @content;
   }

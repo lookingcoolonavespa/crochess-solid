@@ -31,6 +31,7 @@ interface InterfaceProps {
   };
   flipBoard: () => void;
   moveBeingViewed: number;
+  timersVisible: boolean;
 }
 
 interface TimeDetails extends Omit<TimerProps, "className"> {
@@ -40,8 +41,13 @@ interface TimeDetails extends Omit<TimerProps, "className"> {
 export default function Interface(props: InterfaceProps) {
   return (
     <div class={styles.main}>
-      <Timer className={`${styles.timer} ${styles.top}`} {...props.topTimer} />
-      <TimerBar maxTime={props.topTimer.maxTime} time={props.topTimer.time} />
+      <Show when={props.timersVisible}>
+        <Timer
+          className={`${styles.timer} ${styles.top}`}
+          {...props.topTimer}
+        />
+        <TimerBar maxTime={props.topTimer.maxTime} time={props.topTimer.time} />
+      </Show>
       <div class={styles.display_wrapper}>
         <Show when={props.status}>
           <GameStatusDisplay
@@ -66,14 +72,16 @@ export default function Interface(props: InterfaceProps) {
           offeredDraw={props.status?.type === "offeredDraw"}
         />
       </Show>
-      <TimerBar
-        maxTime={props.bottomTimer.maxTime}
-        time={props.bottomTimer.time}
-      />
-      <Timer
-        className={`${styles.timer} ${styles.bottom}`}
-        {...props.bottomTimer}
-      />
+      <Show when={props.timersVisible}>
+        <TimerBar
+          maxTime={props.bottomTimer.maxTime}
+          time={props.bottomTimer.time}
+        />
+        <Timer
+          className={`${styles.timer} ${styles.bottom}`}
+          {...props.bottomTimer}
+        />
+      </Show>
     </div>
   );
 }

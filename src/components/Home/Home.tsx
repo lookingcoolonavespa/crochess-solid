@@ -6,7 +6,6 @@ import { Modal } from "../ui-elements/Modal";
 import useInputValues from "../../hooks/useInputValues";
 import { ColorsBackend, GameSeekColors } from "../../types/types";
 import { toMilliseconds } from "../../utils/time";
-import { createGameSeek, initPlayEngine } from "../../utils/game";
 import { Layout } from "../ui-elements/Layout";
 import { Popup } from "../ui-elements/Popup";
 import { OPP_COLOR } from "../../constants";
@@ -16,6 +15,8 @@ import { user, socket } from "../../globalState";
 import CustomGameFormStyles from "../../styles/Home/CustomGameForm.module.scss";
 import { FlatBtn } from "../ui-elements/buttons/FlatBtn";
 import { wasmSupported } from "../../utils/wasmSupported";
+import { initPlayEngine } from "../../utils/game/createGame";
+import { createGameSeek } from "../../utils/game/createGameSeek";
 
 const GAME_GRID_INDEX = 0;
 const GAME_LIST_INDEX = 1;
@@ -94,6 +95,14 @@ export const Home = () => {
   };
   return (
     <Layout className={styles.main}>
+      <Show when={!wasmIsSupported}>
+        <div class={styles.overlay}>
+          <p>
+            Your browser does not support wasm which is required for the app to
+            run. <br /> Please update your browser to continue.
+          </p>
+        </div>
+      </Show>
       <div class={styles["tabbed-content"]}>
         <nav class={styles.tabs}>
           <ul>
@@ -136,14 +145,7 @@ export const Home = () => {
               filled={true}
               size="medium"
               onClick={() => initPlayEngine()}
-              inactive={!wasmIsSupported}
             />
-            <Show when={!wasmIsSupported}>
-              <p>
-                Unable to play the engine because wasm is not supported in your
-                browser.
-              </p>
-            </Show>
           </div>
         </div>
       </div>

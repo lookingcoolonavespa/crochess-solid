@@ -1,8 +1,8 @@
 import styles from "../../../styles/Home/GameDoor.module.scss";
 import { fromMillisecondsToMinutes } from "../../../utils/time";
 import { GameSeek } from "../../../types/types";
-import { createGame } from "../../../utils/game";
 import { user } from "../../../globalState";
+import { createGame } from "../../../utils/game/createGame";
 
 type GameDoorProps = {
   gameSeek: GameSeek;

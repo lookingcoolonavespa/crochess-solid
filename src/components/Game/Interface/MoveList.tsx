@@ -16,7 +16,6 @@ export function MoveList(props: HistoryDisplayProps) {
       block: "end",
       inline: "center",
     });
-    console.log("scrolled");
   }
 
   createEffect(

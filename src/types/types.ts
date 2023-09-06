@@ -92,6 +92,7 @@ export type GameState = {
   activeColor: Colors;
   history: HistoryArr;
   moves: string[];
+  playingAgainstEngine: boolean;
 };
 
 export type InterfaceStatus =

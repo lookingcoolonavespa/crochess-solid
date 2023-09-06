@@ -13,9 +13,10 @@ import Piece from "./Piece";
 import { FILES, PIECE_TYPES, RANKS } from "../../constants";
 import { ClientGameInterface } from "rust_engine";
 import Promotion from "./Promotion";
-import { parseCookies, sendMove } from "../../utils/game";
 import { useParams } from "@solidjs/router";
 import { getColorsChar } from "../../utils/typeCheck";
+import { parseCookies } from "../../utils/game/activePlayer";
+import { sendMove } from "../../utils/game/ingameActions";
 
 //prettier-ignore
 const squaresFromBlackPov = [

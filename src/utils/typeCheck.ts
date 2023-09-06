@@ -1,4 +1,4 @@
-import { Colors, ColorsChar } from "../types/types";
+import { Colors, ColorsBackend } from "../types/types";
 
 export function isColor(val: string): val is Colors {
   if (val === "b" || val === "w") {
@@ -7,6 +7,6 @@ export function isColor(val: string): val is Colors {
   return false;
 }
 
-export function getColorsChar(val: Colors): ColorsChar {
-  return val[0] as ColorsChar;
+export function getColorsChar(val: Colors): ColorsBackend {
+  return val[0] as ColorsBackend;
 }

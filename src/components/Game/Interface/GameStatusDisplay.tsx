@@ -1,7 +1,12 @@
 import { useParams } from "@solidjs/router";
 import { Match, Setter, Show, Switch } from "solid-js";
 import { Colors, InterfaceStatus, Option } from "../../../types/types";
-import { claimDraw, denyDraw, offerDraw, resign } from "../../../utils/game";
+import {
+  claimDraw,
+  denyDraw,
+  offerDraw,
+  resign,
+} from "../../../utils/game/ingameActions";
 import { CheckIcon } from "../../icons/CheckIcon";
 import { CloseIcon } from "../../icons/CloseIcon";
 import { FlatBtn } from "../../ui-elements/buttons/FlatBtn";

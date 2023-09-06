@@ -4,8 +4,8 @@ import { createSignal } from "solid-js";
 import { user } from "../../../globalState";
 import { Option } from "../../../types/types";
 import { timeControls } from "../../../constants";
-import { createGameSeek } from "../../../utils/game";
 import { TimeControlButton } from "./TimeControlButton";
+import { createGameSeek } from "../../../utils/game/createGameSeek";
 
 interface GameGridProps {
   active: boolean;
