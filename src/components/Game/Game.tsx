@@ -273,6 +273,7 @@ export function Game() {
   );
 
   function initState(game: GameSchema) {
+    console.log(game);
     board = GameInterface.from_history(game.moves || "");
     let activeColor = board.active_side() as Colors;
 
@@ -368,6 +369,7 @@ export function Game() {
     movesSoFar: number
   ) {
     const game = data.payload;
+    console.log(game);
     game.moves = game.moves || "";
 
     const history = parseHistory(game.history || "");

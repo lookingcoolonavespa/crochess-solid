@@ -79,6 +79,7 @@ export function Gameboard(props: GameboardProps) {
     const cookieObj = parseCookies(document.cookie);
     const playerId = cookieObj[`${gameId}(${getColorsChar(activePlayer)})`];
     try {
+      console.log(moveNotation);
       sendMove(gameId, playerId, moveNotation);
     } catch (err) {
       console.log(err);
