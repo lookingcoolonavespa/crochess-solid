@@ -2,14 +2,14 @@ import GameDoor from "./GameDoor";
 
 import styles from "../../../styles/Home/GameList.module.scss";
 import { Index } from "solid-js";
-import { useListOfGames } from "../../../hooks/useListOfGames";
+import { useSubscribeToGameseeks } from "../../../hooks/useSubscribeToGameseeks";
 
 type GameListProps = {
   active: boolean;
 };
 
 export function GameList(props: GameListProps) {
-  const { listOfGames } = useListOfGames();
+  const { listOfGames } = useSubscribeToGameseeks();
 
   return (
     <div

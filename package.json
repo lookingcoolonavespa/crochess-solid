@@ -37,10 +37,8 @@
   },
   "dependencies": {
     "@solidjs/router": "^0.8.2",
-    "@stomp/stompjs": "^7.0.0",
     "dayjs": "^1.11.8",
     "sass": "^1.63.3",
-    "sockjs-client": "^1.6.1",
     "solid-js": "^1.6.10",
     "vite-plugin-wasm": "^3.2.2"
   }

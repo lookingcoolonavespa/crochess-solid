@@ -4,24 +4,26 @@ import {
 } from "../../constants";
 import { socket, user } from "../../globalState";
 import { Colors, GameSeek } from "../../types/types";
+import { ACCEPTED_EVENT } from "../../websocket/events";
+import { GAMESEEKS_TOPIC } from "../../websocket/topics";
 
 function getRdmColor(): Colors {
   const rdm = Math.random();
   return rdm >= 0.5 ? "white" : "black";
 }
 
-export function createGame(gameSeek: GameSeek): void {
+export function acceptGameseek(gameSeek: GameSeek): void {
   let challenger = user();
   if (!challenger) throw new Error(USER_NOT_FOUND_ERR_MSG);
   if (gameSeek.color.toLowerCase() === "random") gameSeek.color = getRdmColor();
 
   let whitePlayer, blackPlayer;
   switch (gameSeek.color.toLowerCase()) {
-    case "w":
+    case "white":
       whitePlayer = challenger;
       blackPlayer = gameSeek.seeker;
       break;
-    case "b":
+    case "black":
       whitePlayer = gameSeek.seeker;
       blackPlayer = challenger;
       break;
@@ -31,13 +33,14 @@ export function createGame(gameSeek: GameSeek): void {
   if (!stompClient) throw new Error(NOT_CONNECTED_TO_SOCKET_ERR_MSG);
 
   stompClient.publish({
-    destination: "/app/api/game",
-    body: JSON.stringify({
-      w_id: whitePlayer,
-      b_id: blackPlayer,
+    topic: GAMESEEKS_TOPIC,
+    event: ACCEPTED_EVENT,
+    payload: {
+      white_id: whitePlayer,
+      black_id: blackPlayer,
       time: gameSeek.time,
       increment: gameSeek.increment,
-    }),
+    },
   });
 }
 
@@ -61,12 +64,12 @@ export function initPlayEngine() {
   if (!stompClient) throw new Error(NOT_CONNECTED_TO_SOCKET_ERR_MSG);
 
   stompClient.publish({
-    destination: "/app/api/game",
-    body: JSON.stringify({
+    topic: GAMESEEKS_TOPIC,
+    event: ACCEPTED_EVENT,
+    payload: {
       w_id: whitePlayer,
       b_id: blackPlayer,
       time: 1,
-      increment: 0,
-    }),
+    },
   });
 }

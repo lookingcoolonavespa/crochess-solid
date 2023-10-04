@@ -2,7 +2,7 @@ import styles from "../../../styles/Home/GameDoor.module.scss";
 import { fromMillisecondsToMinutes } from "../../../utils/time";
 import { GameSeek } from "../../../types/types";
 import { user } from "../../../globalState";
-import { createGame } from "../../../utils/game/createGame";
+import { acceptGameseek } from "../../../utils/game/acceptGameseek";
 
 type GameDoorProps = {
   gameSeek: GameSeek;
@@ -26,7 +26,7 @@ export default function GameDoor(props: GameDoorProps) {
       onClick={(e) => {
         e.stopPropagation();
         try {
-          createGame(props.gameSeek);
+          acceptGameseek(props.gameSeek);
         } catch (err) {
           console.log(err);
         }

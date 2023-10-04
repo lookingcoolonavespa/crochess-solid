@@ -4,19 +4,18 @@ import { GameGrid } from "./GameGrid/GameGrid";
 import styles from "../../styles/Home/Home.module.scss";
 import { Modal } from "../ui-elements/Modal";
 import useInputValues from "../../hooks/useInputValues";
-import { ColorsBackend, GameSeekColors } from "../../types/types";
+import { GameSeekColors } from "../../types/types";
 import { toMilliseconds } from "../../utils/time";
 import { Layout } from "../ui-elements/Layout";
 import { Popup } from "../ui-elements/Popup";
 import { OPP_COLOR } from "../../constants";
 import { GameList } from "./GameList/GameList";
 import { Tab } from "./Tab";
-import { user, socket } from "../../globalState";
 import CustomGameFormStyles from "../../styles/Home/CustomGameForm.module.scss";
 import { FlatBtn } from "../ui-elements/buttons/FlatBtn";
 import { wasmSupported } from "../../utils/wasmSupported";
-import { initPlayEngine } from "../../utils/game/createGame";
 import { createGameSeek } from "../../utils/game/createGameSeek";
+import { initPlayEngine } from "../../utils/game/acceptGameseek";
 
 const GAME_GRID_INDEX = 0;
 const GAME_LIST_INDEX = 1;
@@ -48,31 +47,14 @@ export const Home = () => {
   const navigate = useNavigate();
 
   createEffect(function listenToAcceptedGameSeeks() {
-    let userId = user();
-    let socketClient = socket();
-    if (!socketClient || !userId) return;
-    const subscription = socketClient.subscribe(
-      "/user/queue/gameseeks",
-      (message) => {
-        type GameIdMsg = {
-          gameId: string;
-          playerColor: "W" | "B";
-        };
-        const { gameId, playerColor } = JSON.parse(message.body) as GameIdMsg;
-        setIdToCookie(gameId, playerColor.toLowerCase() as ColorsBackend);
-        function setIdToCookie(gameId: string, color: ColorsBackend) {
-          // set the active playerIds to a cookie so we can tell between active players and spectators
-          document.cookie = `${gameId}(${color})=${userId};max-age=${
-            60 * 60 * 24
-          };samesite=strict`;
-        }
-
-        navigate(`/${gameId}`);
-      }
-    );
+    function onAcceptedGameseek(e: CustomEvent) {
+      console.log(e);
+      navigate(`/${e.detail.gameId}`);
+    }
+    window.addEventListener("acceptedGameseek", onAcceptedGameseek);
 
     onCleanup(() => {
-      subscription?.unsubscribe();
+      window.removeEventListener("acceptedGameseek", onAcceptedGameseek);
     });
   });
 
@@ -88,7 +70,7 @@ export const Home = () => {
     if (!e.currentTarget.parentNode?.children) return;
 
     let elementPosition = Array.from(
-      e.currentTarget.parentNode?.children
+      e.currentTarget.parentNode?.children,
     ).findIndex((el) => el === e.currentTarget);
     if (elementPosition == -1) return;
     setActiveTabIndex(elementPosition);
@@ -133,7 +115,7 @@ export const Home = () => {
           <GameList active={activeTabIndex() === GAME_LIST_INDEX} />
           <div
             class={[styles.tab_content, styles.play_engine_tab_content].join(
-              " "
+              " ",
             )}
             classList={{
               inactive: activeTabIndex() != PLAY_ENGINE_INDEX,
@@ -211,7 +193,7 @@ export const Home = () => {
                 popupInputValues.increment as number,
                 popupInputValues.color === "random"
                   ? "random"
-                  : OPP_COLOR[popupInputValues.color]
+                  : OPP_COLOR[popupInputValues.color],
               );
               setActiveTabIndex(1);
             }}

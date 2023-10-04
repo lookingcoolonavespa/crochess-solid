@@ -102,19 +102,14 @@ export function Game() {
 
   createEffect(function subscribeToGame() {
     if (!socket) return;
-    const outputSubscription = socket()?.subscribe(
-      // this subscription allows the client to send messages to the server
-      `/app/api/game/${gameId}`,
-      () => {}
-    );
-    const inputSubscription = socket()?.subscribe(
+    const subscription = socket()?.subscribe(
       // this subscription allows the client to receive messages from the server
       `/topic/api/game/${gameId}`,
       (message) => {
-        const data = JSON.parse(message.body) as Message;
+        const data = JSON.parse(message) as Message;
         switch (data.event) {
           case "init": {
-            initState(JSON.parse(message.body).payload);
+            initState(JSON.parse(message).payload);
 
             break;
           }
@@ -129,12 +124,11 @@ export function Game() {
             onUpdateDraw(data.payload, activePlayer());
           }
         }
-      }
+      },
     );
 
     onCleanup(() => {
-      outputSubscription?.unsubscribe();
-      inputSubscription?.unsubscribe();
+      subscription?.unsubscribe();
     });
   });
 
@@ -155,7 +149,7 @@ export function Game() {
       board,
       from,
       to,
-      gameState.activeColor === "white"
+      gameState.activeColor === "white",
     );
 
     return validity;
@@ -180,11 +174,11 @@ export function Game() {
   });
 
   const topTimer = createMemo(() =>
-    gameboardView() === "white" ? blackTimeDetails() : whiteTimeDetails()
+    gameboardView() === "white" ? blackTimeDetails() : whiteTimeDetails(),
   );
 
   const bottomTimer = createMemo(() =>
-    gameboardView() === "white" ? whiteTimeDetails() : blackTimeDetails()
+    gameboardView() === "white" ? whiteTimeDetails() : blackTimeDetails(),
   );
 
   return (
@@ -273,7 +267,6 @@ export function Game() {
   );
 
   function initState(game: GameSchema) {
-    console.log(game);
     board = GameInterface.from_history(game.moves || "");
     let activeColor = board.active_side() as Colors;
 
@@ -366,10 +359,9 @@ export function Game() {
 
   function onGameUpdate(
     data: UpdateOnGameOver | UpdateOnMove,
-    movesSoFar: number
+    movesSoFar: number,
   ) {
     const game = data.payload;
-    console.log(game);
     game.moves = game.moves || "";
 
     const history = parseHistory(game.history || "");
@@ -431,7 +423,7 @@ export function Game() {
 
   function onUpdateDraw(
     drawRecord: DrawRecordBackend,
-    activePlayer: Option<Colors>
+    activePlayer: Option<Colors>,
   ) {
     let isActivePlayerAndOfferedDraw =
       !!activePlayer &&
@@ -513,7 +505,7 @@ function useBoardBeingViewed(gameState: GameState) {
       boardArr.splice(
         0,
         64,
-        ...(boardStates()[boardIdx || 0]?.split("") as Board)
+        ...(boardStates()[boardIdx || 0]?.split("") as Board),
       );
     } else {
       boardArr = boardStates()[boardIdx || 0]?.split("") as Board;

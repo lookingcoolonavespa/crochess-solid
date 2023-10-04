@@ -7,15 +7,14 @@ import App from "./App";
 import { Route, Router, Routes } from "@solidjs/router";
 import { Game } from "./components/Game/Game";
 import { onCleanup, onMount } from "solid-js";
-import { Client, IStompSocket } from "@stomp/stompjs";
-import SockJS from "sockjs-client/dist/sockjs";
 import { setUser, socket, setSocket } from "./globalState";
+import { CroChessWebSocket } from "./websocket/websocket";
 
 const root = document.getElementById("root");
 
 if (import.meta.env.DEV && !(root instanceof HTMLElement)) {
   throw new Error(
-    "Root element not found. Did you forget to add it to your index.html? Or maybe the id attribute got mispelled?"
+    "Root element not found. Did you forget to add it to your index.html? Or maybe the id attribute got mispelled?",
   );
 }
 
@@ -26,36 +25,33 @@ if (import.meta.env.DEV && !(root instanceof HTMLElement)) {
   useConnectToSocket();
   function useConnectToSocket() {
     onMount(function connectToSocket() {
-      if (socket()?.active) return;
-
-      const stompClient = new Client();
-      stompClient.webSocketFactory = () => {
-        return new SockJS(
-          `${import.meta.env.VITE_BACKEND_URL}/websocket`
-        ) as IStompSocket;
-      };
+      if (socket()?.active()) return;
 
       const userId = sessionStorage.getItem("user") || getRdmInt().toString();
+      console.log(userId);
       function getRdmInt() {
         return Math.floor(2147483647 * Math.random());
       }
 
-      stompClient.connectHeaders = { name: userId };
-      stompClient.activate();
-      stompClient.onConnect = () => {
-        setUser(userId);
-        sessionStorage.setItem("user", userId);
-        // used to identify user if they refresh or disconnect
-        setSocket(stompClient);
-      };
-    });
+      const socketConnection = new CroChessWebSocket(
+        `${import.meta.env.VITE_BACKEND_WS_URL}?uid=${userId}`,
+        () => {
+          setUser(userId);
+          sessionStorage.setItem("user", userId);
+          // used to identify user if they refresh or disconnect
+          setSocket(socketConnection);
+        },
+        function onDisconnect() {
+          setUser(null);
+          setSocket(null);
+        },
+      );
 
-    onCleanup(function deactivateSocket() {
-      socket()?.deactivate();
-      setUser(null);
+      onCleanup(function deactivateSocket() {
+        socket()?.close();
+        setUser(null);
+      });
     });
-
-    return socket;
   }
 
   render(
@@ -67,6 +63,6 @@ if (import.meta.env.DEV && !(root instanceof HTMLElement)) {
         </Routes>
       </Router>
     ),
-    root!
+    root!,
   );
 })();
