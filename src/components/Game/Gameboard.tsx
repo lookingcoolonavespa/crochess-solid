@@ -14,7 +14,6 @@ import { FILES, PIECE_TYPES, RANKS } from "../../constants";
 import { ClientGameInterface } from "rust_engine";
 import Promotion from "./Promotion";
 import { useParams } from "@solidjs/router";
-import { getColorsChar } from "../../utils/typeCheck";
 import { parseCookies } from "../../utils/game/activePlayer";
 import { sendMove } from "../../utils/game/ingameActions";
 
@@ -41,18 +40,20 @@ const FILE_BITS = 7;
 type GameboardProps = {
   view: Colors;
   board: Board;
+  gameActive: boolean;
   latestBoardBeingViewed: boolean;
   squareToMove: Square | null;
   setSquareToMove: Setter<Square | null>;
   getLegalMoves: (square: Square) => Uint32Array;
   validateMove: (to: number) => boolean;
+  isPromotion: (to: number) => boolean;
   activePlayer: () => Option<Colors>;
 };
 
 export function Gameboard(props: GameboardProps) {
   const { id: gameId } = useParams();
   const [highlightedSquares, setHighlightedSquares] = createSignal<Uint32Array>(
-    new Uint32Array()
+    new Uint32Array(),
   );
   const [promotePopupSquare, setPromotePopupSquare] =
     createSignal<Square | null>(null);
@@ -63,13 +64,15 @@ export function Gameboard(props: GameboardProps) {
   }
 
   function onMakeMove(to: number, promotePiece: string | undefined) {
+    if (!props.gameActive) return;
+
     let activePlayer = props.activePlayer();
     if (!activePlayer) return;
     if (!props.squareToMove) return;
     let moveNotation = ClientGameInterface.make_move_notation(
       props.squareToMove,
       to,
-      promotePiece
+      promotePiece,
     ) as MoveNotation;
     if (!props.validateMove(to)) {
       throw new Error(`${moveNotation} is not a valid move`);
@@ -77,9 +80,8 @@ export function Gameboard(props: GameboardProps) {
 
     // get the playerId from cookie so players can play from multiple tabs
     const cookieObj = parseCookies(document.cookie);
-    const playerId = cookieObj[`${gameId}(${getColorsChar(activePlayer)})`];
+    const playerId = cookieObj[`${gameId}(${activePlayer})`];
     try {
-      console.log(moveNotation);
       sendMove(gameId, playerId, moveNotation);
     } catch (err) {
       console.log(err);
@@ -115,7 +117,15 @@ export function Gameboard(props: GameboardProps) {
               style={{
                 "grid-area": ClientGameInterface.name_of_square(s),
               }}
-              onClick={() => onMakeMove(s, undefined)}
+              onClick={() => {
+                if (props.activePlayer() !== null) {
+                  if (!props.squareToMove) return;
+
+                  if (props.isPromotion(s)) return setPromotePopupSquare(s);
+
+                  onMakeMove(s, undefined);
+                }
+              }}
             >
               <Show when={props.view === "white" ? s <= H1 : s >= A8}>
                 <div class={`${styles.file} label`}>
@@ -138,12 +148,19 @@ export function Gameboard(props: GameboardProps) {
                   onPromote={(e) => {
                     e.stopPropagation();
                     const pieceSelectNode = e.currentTarget as HTMLElement;
+                    const promoteSquare = promotePopupSquare();
+                    if (!promoteSquare) {
+                      console.error(
+                        "Gameboard/Promotion/onPromote, there is no promote square",
+                      );
+                      return;
+                    }
 
-                    setPromotePopupSquare(null);
                     onMakeMove(
-                      promotePopupSquare() as Square,
-                      pieceSelectNode.dataset.piece as PromotePieceType
+                      promoteSquare,
+                      pieceSelectNode.dataset.piece as PromotePieceType,
                     );
+                    setPromotePopupSquare(null);
                   }}
                   square={promotePopupSquare() as number}
                   view={props.view}
@@ -162,7 +179,7 @@ export function Gameboard(props: GameboardProps) {
               char() != "."
             )
               throw new Error(
-                `encountered invalid piece (${char}) on the board.\nboard: ${props.board}\n`
+                `encountered invalid piece (${char}) on the board.\nboard: ${props.board}\n`,
               );
 
             function getColorOfPiece(): Colors {
@@ -183,21 +200,14 @@ export function Gameboard(props: GameboardProps) {
                   onClick={() => {
                     if (promotePopupSquare() || !props.latestBoardBeingViewed)
                       return;
+
                     if (
                       props.activePlayer() !== null &&
                       getColorOfPiece() !== props.activePlayer()
                     ) {
                       if (!props.squareToMove) return; // means this click is not a capture
-                      const pawn = "p";
-                      const onPromotionRank =
-                        (getColorOfPiece() === "white" &&
-                          ClientGameInterface.rank_of_square(square()) === 7) ||
-                        (getColorOfPiece() === "black" &&
-                          ClientGameInterface.rank_of_square(square()) === 0);
-                      let isPromote =
-                        char().toLowerCase() === pawn && onPromotionRank;
 
-                      if (isPromote && props.validateMove(square()))
+                      if (props.isPromotion(square()))
                         return setPromotePopupSquare(square);
 
                       onMakeMove(square(), undefined);
@@ -210,7 +220,7 @@ export function Gameboard(props: GameboardProps) {
                       // display legal moves
                       props.setSquareToMove(square);
                       setHighlightedSquares(
-                        props.getLegalMoves(square()) || []
+                        props.getLegalMoves(square()) || [],
                       );
                     }
                   }}

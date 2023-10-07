@@ -55,7 +55,7 @@ export default function Interface(props: InterfaceProps) {
             resetStatus={props.resetStatus}
             styles={styles}
             status={props.status}
-            activePlayer={props.activePlayer as Colors}
+            activePlayer={props.activePlayer}
           />
         </Show>
         <History

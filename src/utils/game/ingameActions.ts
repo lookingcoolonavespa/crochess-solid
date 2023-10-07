@@ -1,17 +1,20 @@
 import { NOT_CONNECTED_TO_SOCKET_ERR_MSG, OPP_COLOR } from "../../constants";
 import { socket } from "../../globalState";
+import { GameOverDetails } from "../../types/interfaces";
 import { Colors, MoveNotation } from "../../types/types";
+import { GAME_BASE_TOPIC } from "../../websocket/topics";
 
 export function offerDraw(gameId: string, offerer: Colors) {
   let stompClient = socket();
   if (!stompClient) throw new Error(NOT_CONNECTED_TO_SOCKET_ERR_MSG);
   const oppColor = OPP_COLOR[offerer];
   stompClient.publish({
-    destination: `/app/api/game/${gameId}/draw`,
-    body: JSON.stringify({
-      [offerer[0]]: false,
-      [oppColor[0]]: true,
-    }),
+    topic: `${GAME_BASE_TOPIC}/${gameId}`,
+    event: "update draw",
+    payload: {
+      [offerer]: false,
+      [oppColor]: true,
+    },
   });
 }
 
@@ -19,35 +22,40 @@ export async function denyDraw(gameId: string) {
   let stompClient = socket();
   if (!stompClient) throw new Error(NOT_CONNECTED_TO_SOCKET_ERR_MSG);
   stompClient.publish({
-    destination: `/app/api/game/${gameId}/draw`,
-    body: JSON.stringify({
-      w: false,
-      b: false,
-    }),
+    topic: `${GAME_BASE_TOPIC}/${gameId}`,
+    event: "update draw",
+    payload: {
+      white: false,
+      black: false,
+    },
   });
 }
 
 export async function claimDraw(gameId: string) {
   let stompClient = socket();
   if (!stompClient) throw new Error(NOT_CONNECTED_TO_SOCKET_ERR_MSG);
+  const gameOverDetails: GameOverDetails = {
+    method: "DrawOffer",
+    result: "1/2-1/2",
+  };
   stompClient.publish({
-    destination: `/app/api/game/${gameId}/resign-draw`,
-    body: JSON.stringify({
-      winner: null,
-      result: "draw",
-    }),
+    topic: `${GAME_BASE_TOPIC}/${gameId}`,
+    event: "update result",
+    payload: gameOverDetails,
   });
 }
 
 export async function resign(gameId: string, resigning: Colors) {
   let stompClient = socket();
   if (!stompClient) throw new Error(NOT_CONNECTED_TO_SOCKET_ERR_MSG);
+  const gameOverDetails: GameOverDetails = {
+    method: "Resignation",
+    result: resigning == "black" ? "1-0" : "0-1",
+  };
   stompClient.publish({
-    destination: `/app/api/game/${gameId}/resign-draw`,
-    body: JSON.stringify({
-      winner: OPP_COLOR[resigning][0],
-      result: "resignation",
-    }),
+    topic: `${GAME_BASE_TOPIC}/${gameId}`,
+    event: "update result",
+    payload: gameOverDetails,
   });
 }
 
@@ -55,11 +63,12 @@ export function sendMove(gameId: string, playerId: string, move: MoveNotation) {
   let stompClient = socket();
   if (!stompClient) throw new Error(NOT_CONNECTED_TO_SOCKET_ERR_MSG);
   stompClient.publish({
-    destination: `/app/api/game/${gameId}`,
-    body: JSON.stringify({
-      playerId,
+    topic: `${GAME_BASE_TOPIC}/${gameId}`,
+    event: "make move",
+    payload: {
       move,
-    }),
+      player_id: playerId,
+    },
   });
 }
 

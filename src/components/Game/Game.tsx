@@ -13,21 +13,25 @@ import { createStore } from "solid-js/store";
 import {
   Board,
   Colors,
-  ColorsBackend,
-  DrawRecordBackend,
+  DrawRecord,
   GameState,
   HistoryArr,
   InterfaceStatus,
-  Message,
   MoveNotation,
   Option,
   Square,
+  TimeOutPayload,
+  Tuple,
   UpdateOnGameOver,
   UpdateOnMove,
 } from "../../types/types";
 import { ClientGameInterface as GameInterface } from "rust_engine";
-import { GameSchema, TimeDetails } from "../../types/interfaces";
-import { COLORS_FROM_CHAR, OPP_COLOR } from "../../constants";
+import {
+  GameOverDetails,
+  GameSchema,
+  TimeDetails,
+} from "../../types/interfaces";
+import { OPP_COLOR } from "../../constants";
 import { Gameboard } from "./Gameboard";
 import { History } from "./Interface/History";
 import Interface from "./Interface/Interface";
@@ -35,6 +39,8 @@ import { useScreenSize } from "../../hooks/useScreenSize";
 import Timer from "./Interface/Timer";
 import { getActivePlayer } from "../../utils/game/activePlayer";
 import { makeEngineMove } from "../../utils/game/ingameActions";
+import { GameStatusControls } from "./Interface/GameStatusControls";
+import GameStatusDisplay from "./Interface/GameStatusDisplay";
 
 let defaultGameState: GameState = {
   active: false,
@@ -95,37 +101,46 @@ export function Game() {
 
   let board: GameInterface = GameInterface.from_history("");
 
-  createEffect(function onFirstLoad() {
-    if (!socket) return;
-    socket()?.unsubscribe("/topic/api/gameseeks");
-  });
-
   createEffect(function subscribeToGame() {
     if (!socket) return;
-    const subscription = socket()?.subscribe(
-      // this subscription allows the client to receive messages from the server
-      `/topic/api/game/${gameId}`,
-      (message) => {
-        const data = JSON.parse(message) as Message;
-        switch (data.event) {
-          case "init": {
-            initState(JSON.parse(message).payload);
-
-            break;
-          }
-
-          case "game over":
-          case "update": {
-            onGameUpdate(data, gameState.moves.length);
-            break;
-          }
-
-          case "update draw": {
-            onUpdateDraw(data.payload, activePlayer());
-          }
+    const subscription = socket()?.subscribe(`game/${gameId}`, (message) => {
+      switch (message.event) {
+        case "init": {
+          initState(message.payload);
+          break;
         }
-      },
-    );
+
+        case "game over":
+        case "make move": {
+          const event = message.event;
+          onGameUpdate(
+            { event, payload: message.payload },
+            gameState.moves.length,
+          );
+          break;
+        }
+
+        case "time out": {
+          onTimeOut(message.payload);
+          break;
+        }
+
+        case "update result": {
+          onUpdateResult(message.payload);
+          break;
+        }
+
+        case "update draw": {
+          onUpdateDraw(
+            {
+              white: message.payload.white_draw_status,
+              black: message.payload.black_draw_status,
+            },
+            activePlayer(),
+          );
+        }
+      }
+    });
 
     onCleanup(() => {
       subscription?.unsubscribe();
@@ -145,14 +160,18 @@ export function Game() {
   function validateMove(to: number): boolean {
     let from = squareToMove();
     if (from === null) return false;
-    const validity = board.validate_move.call(
+    return board.validate_move.call(
       board,
       from,
       to,
       gameState.activeColor === "white",
     );
+  }
 
-    return validity;
+  function isPromotion(to: number): boolean {
+    let from = squareToMove();
+    if (from === null) return false;
+    return board.is_promotion.call(board, from, to);
   }
 
   const whiteTimeDetails = () => ({
@@ -197,31 +216,51 @@ export function Game() {
                   (boardStates().length - gameState.moves.length)
                 }
               />
-              <div class={styles.board_ctn}>
-                <Show when={!gameState.playingAgainstEngine}>
-                  <Timer
-                    className={`${styles.timer} ${styles.top}`}
-                    {...topTimer()}
+              <div class={styles.mobile_main_content}>
+                <div class={styles.board_ctn}>
+                  <Show when={!gameState.playingAgainstEngine}>
+                    <Timer
+                      className={`${styles.timer} ${styles.top}`}
+                      {...topTimer()}
+                    />
+                  </Show>
+                  <Gameboard
+                    gameActive={gameState.active}
+                    latestBoardBeingViewed={
+                      boardBeingViewed() ===
+                      boardStates().length -
+                        (boardStates().length - gameState.moves.length)
+                    }
+                    view={gameboardView()}
+                    board={currentBoard()}
+                    squareToMove={squareToMove()}
+                    setSquareToMove={setSquareToMove}
+                    getLegalMoves={board.legal_moves_at_sq.bind(board)}
+                    validateMove={validateMove}
+                    isPromotion={isPromotion}
+                    activePlayer={activePlayer}
+                  />
+                  <Show when={!gameState.playingAgainstEngine}>
+                    <Timer
+                      className={`${styles.timer} ${styles.bottom}`}
+                      {...bottomTimer()}
+                    />
+                  </Show>
+                </div>
+                <Show when={activePlayer() && gameState.active}>
+                  <GameStatusControls
+                    offerDraw={offerDraw}
+                    resign={resign}
+                    offeredDraw={interfaceStatus()?.type === "offeredDraw"}
                   />
                 </Show>
-                <Gameboard
-                  latestBoardBeingViewed={
-                    boardBeingViewed() ===
-                    boardStates().length -
-                      (boardStates().length - gameState.moves.length)
-                  }
-                  view={gameboardView()}
-                  board={currentBoard()}
-                  squareToMove={squareToMove()}
-                  setSquareToMove={setSquareToMove}
-                  getLegalMoves={board.legal_moves_at_sq.bind(board)}
-                  validateMove={validateMove}
-                  activePlayer={activePlayer}
-                />
-                <Show when={!gameState.playingAgainstEngine}>
-                  <Timer
-                    className={`${styles.timer} ${styles.bottom}`}
-                    {...bottomTimer()}
+                <Show when={interfaceStatus()}>
+                  <GameStatusDisplay
+                    setStatus={setInterfaceStatus}
+                    resetStatus={resetStatus}
+                    styles={styles}
+                    status={interfaceStatus()}
+                    activePlayer={activePlayer()}
                   />
                 </Show>
               </div>
@@ -229,6 +268,7 @@ export function Game() {
           }
         >
           <Gameboard
+            gameActive={gameState.active}
             latestBoardBeingViewed={
               boardBeingViewed() ===
               boardStates().length -
@@ -240,6 +280,7 @@ export function Game() {
             setSquareToMove={setSquareToMove}
             getLegalMoves={board.legal_moves_at_sq.bind(board)}
             validateMove={validateMove}
+            isPromotion={isPromotion}
             activePlayer={activePlayer}
           />
           <Interface
@@ -283,10 +324,12 @@ export function Game() {
         stampAtTurnStart: game.time_stamp_at_turn_start || Date.now(),
       };
     }
-    let activePlayer = getActivePlayer(gameId!, game.w_id, game.b_id);
+    let activePlayer = getActivePlayer(gameId!, game.white_id, game.black_id);
 
-    let activeColorTime = activeColor === "white" ? game.w_time : game.b_time;
-    let inactiveColorTime = activeColor === "white" ? game.b_time : game.w_time;
+    let activeColorTime =
+      activeColor === "white" ? game.white_time : game.black_time;
+    let inactiveColorTime =
+      activeColor === "white" ? game.black_time : game.white_time;
     // if fetch happens in middle of game
     const elapsedTime =
       Date.now() - (game.time_stamp_at_turn_start || Date.now());
@@ -294,7 +337,7 @@ export function Game() {
     if (timeLeft < 0) timeLeft = 0;
 
     tmpTimeDetails[activeColor].time = timeLeft;
-    tmpTimeDetails[activeColor].timeLeftAtTurnStart = timeLeft;
+    tmpTimeDetails[activeColor].timeLeftAtTurnStart = activeColorTime;
     tmpTimeDetails[OPP_COLOR[activeColor]].time = inactiveColorTime;
 
     let moves: MoveNotation[] = [];
@@ -305,7 +348,7 @@ export function Game() {
     batch(() => {
       setActivePlayer(activePlayer);
       let gameOverDetails = {
-        winner: game.winner,
+        method: game.method,
         result: game.result,
       };
       setBoardStates(getBoardStates(moves));
@@ -314,21 +357,27 @@ export function Game() {
       setTimeDetails(tmpTimeDetails);
       setGameState({
         activeColor,
-        playingAgainstEngine: game.w_id === "engine" || game.b_id === "engine",
+        playingAgainstEngine:
+          game.white_id === "engine" || game.black_id === "engine",
         active: !game.result,
         moves: moves,
         history: parseHistory(game.history || ""),
       });
 
+      const drawRecord = {
+        white: game.white_draw_status,
+        black: game.black_draw_status,
+      };
+
       let isActivePlayerAndOfferedDraw =
         !!activePlayer &&
-        !game.drawRecord[activePlayer!] &&
-        game.drawRecord[OPP_COLOR[activePlayer!]];
+        !drawRecord[activePlayer!] &&
+        drawRecord[OPP_COLOR[activePlayer!]];
       let isActivePlayerAndCanClaimDraw =
-        !!activePlayer && game.drawRecord[activePlayer!];
+        !!activePlayer && drawRecord[activePlayer!];
+
       if (game.result) {
         setInterfaceStatus({
-          close: undefined,
           type: "gameOver",
           payload: gameOverDetails,
         });
@@ -342,9 +391,9 @@ export function Game() {
     });
 
     const engineColor =
-      game.w_id === "engine"
+      game.white_id === "engine"
         ? "white"
-        : game.b_id === "engine"
+        : game.black_id === "engine"
         ? "black"
         : null;
     if (engineColor) {
@@ -370,22 +419,17 @@ export function Game() {
 
     let activeColor = board.active_side() as Colors;
 
-    let activeColorTime = activeColor === "white" ? game.w_time : game.b_time;
-    let inactiveColorTime = activeColor === "white" ? game.b_time : game.w_time;
-    const elapsedTime =
-      Date.now() - (game.time_stamp_at_turn_start || Date.now());
-    let timeLeft = activeColorTime - elapsedTime;
-    if (timeLeft < 0) timeLeft = 0;
-
     let tmpTimeDetails = {
       white: { ...timeDetails.white },
       black: { ...timeDetails.black },
     };
-    tmpTimeDetails[activeColor].time = timeLeft;
-    tmpTimeDetails[activeColor].timeLeftAtTurnStart = timeLeft;
+
+    tmpTimeDetails[activeColor].timeLeftAtTurnStart =
+      tmpTimeDetails[activeColor].time;
     tmpTimeDetails[activeColor].stampAtTurnStart =
       game.time_stamp_at_turn_start || Date.now();
-    tmpTimeDetails[OPP_COLOR[activeColor]].time = inactiveColorTime;
+    tmpTimeDetails[OPP_COLOR[activeColor]].time =
+      activeColor === "white" ? game.black_time : game.white_time;
 
     batch(() => {
       setBoardBeingViewed((prev) => {
@@ -402,14 +446,11 @@ export function Game() {
       }));
       setBoardStates((prev) => [...prev, board.to_string()]);
 
-      if (data.event === "game over") {
-        let winner = data.payload.winner
-          ? COLORS_FROM_CHAR[data.payload.winner]
-          : null;
+      if (data.event == "game over") {
         setInterfaceStatus({
           type: "gameOver",
           payload: {
-            winner,
+            method: data.payload.method,
             result: data.payload.result,
           },
         });
@@ -421,131 +462,163 @@ export function Game() {
     }
   }
 
-  function onUpdateDraw(
-    drawRecord: DrawRecordBackend,
-    activePlayer: Option<Colors>,
-  ) {
+  function onUpdateDraw(drawRecord: DrawRecord, activePlayer: Option<Colors>) {
+    if (!activePlayer) return;
+
     let isActivePlayerAndOfferedDraw =
-      !!activePlayer &&
-      !drawRecord[activePlayer![0] as ColorsBackend] &&
-      drawRecord[OPP_COLOR[activePlayer!][0] as ColorsBackend];
-    let isActivePlayerAndCanClaimDraw =
-      !!activePlayer && drawRecord[activePlayer![0] as ColorsBackend];
+      !drawRecord[activePlayer] && drawRecord[OPP_COLOR[activePlayer]];
+
+    let isActivePlayerAndCanClaimDraw = drawRecord[activePlayer];
+
     if (isActivePlayerAndOfferedDraw) {
       setInterfaceStatus({
         type: "offeredDraw",
       });
     } else if (isActivePlayerAndCanClaimDraw) {
       setInterfaceStatus({ type: "claimDraw" });
-    }
-  }
-}
-
-function getBoardStates(moves: MoveNotation[]): string[] {
-  let game = GameInterface.from_history("");
-
-  return [
-    game.to_string(),
-    ...moves.map((move) => {
-      game.make_move(move);
-      return game.to_string();
-    }),
-  ];
-}
-
-function parseHistory(history: string): HistoryArr {
-  return history === ""
-    ? []
-    : history.split(" ").reduce(function parseIntoPairs(acc, curr, i) {
-        if (i % 2 === 0) {
-          acc.push([curr as MoveNotation, ""]);
-        } else acc[acc.length - 1][1] = curr as MoveNotation;
-
-        return acc;
-      }, [] as HistoryArr);
-}
-
-function useInterfaceStatus() {
-  const [interfaceStatus, setInterfaceStatus] =
-    createSignal<Option<InterfaceStatus>>(null);
-
-  function resetStatus() {
-    setInterfaceStatus(null);
-  }
-
-  function resign() {
-    setInterfaceStatus({
-      type: "resignConfirmation",
-    });
-  }
-
-  function offerDraw() {
-    setInterfaceStatus({
-      type: "offerDrawConfirmation",
-    });
-  }
-  return {
-    resetStatus,
-    offerDraw,
-    resign,
-    interfaceStatus,
-    setInterfaceStatus,
-  };
-}
-
-function useBoardBeingViewed(gameState: GameState) {
-  const [boardBeingViewed, setBoardBeingViewed] = createSignal<number>(0);
-  const [boardStates, setBoardStates] = createSignal<string[]>([]);
-
-  // storing the board in boardArr so currentBoard returns the same array but just with the contents changed
-  let boardArr: Option<Board> = null;
-  function currentBoard(): Board {
-    let boardIdx = boardBeingViewed();
-    if (Array.isArray(boardArr)) {
-      boardArr.splice(
-        0,
-        64,
-        ...(boardStates()[boardIdx || 0]?.split("") as Board),
-      );
     } else {
-      boardArr = boardStates()[boardIdx || 0]?.split("") as Board;
+      setInterfaceStatus(null);
     }
-    return boardArr;
   }
 
-  const moveListControls = {
-    goBackToStart: () => {
-      if (!gameState.moves.length) return;
-      setBoardBeingViewed(0);
-    },
-    goBackOneMove: () => {
-      if (!gameState.moves.length) return;
-      setBoardBeingViewed((prev) => {
-        if (prev === null) return prev;
-        if (prev === 0) return prev;
-        return prev - 1;
-      });
-    },
-    goForwardOneMove: () => {
-      if (!gameState.moves.length) return;
-      setBoardBeingViewed((prev) => {
-        if (prev === null) return prev;
-        if (prev === gameState.moves.length) return prev;
-        return prev + 1;
-      });
-    },
-    goToCurrentMove: () => {
-      if (!gameState.moves.length) return;
-      setBoardBeingViewed(gameState.moves.length);
-    },
-  };
+  function onTimeOut(payload: TimeOutPayload) {
+    const activeColor = gameState.activeColor;
+    let tmpTimeDetails = {
+      white: { ...timeDetails.white },
+      black: { ...timeDetails.black },
+    };
 
-  return {
-    boardStates,
-    boardBeingViewed,
-    currentBoard,
-    moveListControls,
-    setBoardStates,
-    setBoardBeingViewed,
-  };
+    tmpTimeDetails[activeColor].time = 0;
+    batch(() => {
+      setTimeDetails(tmpTimeDetails);
+      onUpdateResult(payload);
+    });
+  }
+
+  function onUpdateResult(payload: GameOverDetails) {
+    batch(() => {
+      setGameState((prev) => ({
+        ...prev,
+        active: false,
+      }));
+      setInterfaceStatus({
+        type: "gameOver",
+        payload: {
+          method: payload.method,
+          result: payload.result,
+        },
+      });
+    });
+  }
+
+  function getBoardStates(moves: MoveNotation[]): string[] {
+    let game = GameInterface.from_history("");
+
+    return [
+      game.to_string(),
+      ...moves.map((move) => {
+        game.make_move(move);
+        return game.to_string();
+      }),
+    ];
+  }
+
+  function parseHistory(history: string): HistoryArr {
+    return history === ""
+      ? []
+      : history
+          .split(".")
+          .slice(1)
+          .reduce(function parseIntoPairs(acc, curr) {
+            const pair = curr.split(" ").slice(1, -1) as Tuple<MoveNotation, 2>;
+            acc.push(pair);
+
+            return acc;
+          }, [] as HistoryArr);
+  }
+
+  function useInterfaceStatus() {
+    const [interfaceStatus, setInterfaceStatus] =
+      createSignal<Option<InterfaceStatus>>(null);
+
+    function resetStatus() {
+      setInterfaceStatus(null);
+    }
+
+    function resign() {
+      setInterfaceStatus({
+        type: "resignConfirmation",
+      });
+    }
+
+    function offerDraw() {
+      setInterfaceStatus({
+        type: "offerDrawConfirmation",
+      });
+    }
+    return {
+      resetStatus,
+      offerDraw,
+      resign,
+      interfaceStatus,
+      setInterfaceStatus,
+    };
+  }
+
+  function useBoardBeingViewed(gameState: GameState) {
+    const [boardBeingViewed, setBoardBeingViewed] = createSignal<number>(0);
+    const [boardStates, setBoardStates] = createSignal<string[]>([]);
+
+    // storing the board in boardArr so currentBoard returns the same array but just with the contents changed
+    let boardArr: Option<Board> = null;
+    function currentBoard(): Board {
+      let boardIdx = boardBeingViewed();
+      if (Array.isArray(boardArr)) {
+        boardArr.splice(
+          0,
+          64,
+          ...(boardStates()[boardIdx || 0]?.split("") as Board),
+        );
+      } else {
+        boardArr = boardStates()[boardIdx || 0]?.split("") as Board;
+      }
+      return boardArr;
+    }
+
+    const moveListControls = {
+      goBackToStart: () => {
+        if (!gameState.moves.length) return;
+        setBoardBeingViewed(0);
+      },
+      goBackOneMove: () => {
+        if (!gameState.moves.length) return;
+        setBoardBeingViewed((prev) => {
+          if (prev === null) return prev;
+          if (prev === 0) return prev;
+          return prev - 1;
+        });
+      },
+      goForwardOneMove: () => {
+        if (!gameState.moves.length) return;
+        setBoardBeingViewed((prev) => {
+          if (prev === null) return prev;
+          if (prev === gameState.moves.length) return prev;
+          return prev + 1;
+        });
+      },
+      goToCurrentMove: () => {
+        if (!gameState.moves.length) return;
+        setBoardBeingViewed(gameState.moves.length);
+      },
+    };
+
+    return {
+      boardStates,
+      boardBeingViewed,
+      currentBoard,
+      moveListControls,
+      setBoardStates,
+      setBoardBeingViewed,
+    };
+  }
 }

@@ -31,7 +31,6 @@ export class CroChessWebSocket {
     this.onDisconnect = onDisconnect;
 
     this.websocket.onopen = function (this: CroChessWebSocket) {
-      console.log("connected");
       onConnect();
 
       this.websocket.onmessage = function (
@@ -39,7 +38,6 @@ export class CroChessWebSocket {
         ev: MessageEvent<any>,
       ) {
         const message = JSON.parse(ev.data) as WebSocketMessage;
-        console.log(message);
 
         if (message.topic in this.subscriptions) {
           this.subscriptions[message.topic].messageHandler(message);
@@ -47,12 +45,11 @@ export class CroChessWebSocket {
           console.error(
             `received message for topic: "${message.topic}" but you are not subscribed`,
           );
-          this.close();
         }
       }.bind(this);
 
       this.websocket.onclose = function (ev: CloseEvent) {
-        console.log("disconnected because ", ev.reason);
+        console.log("disconnected: ", ev.reason);
       };
     }.bind(this);
   }

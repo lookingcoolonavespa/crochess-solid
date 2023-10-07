@@ -27,8 +27,7 @@ if (import.meta.env.DEV && !(root instanceof HTMLElement)) {
     onMount(function connectToSocket() {
       if (socket()?.active()) return;
 
-      const userId = sessionStorage.getItem("user") || getRdmInt().toString();
-      console.log(userId);
+      const userId = Number(sessionStorage.getItem("user")) || getRdmInt();
       function getRdmInt() {
         return Math.floor(2147483647 * Math.random());
       }
@@ -36,8 +35,8 @@ if (import.meta.env.DEV && !(root instanceof HTMLElement)) {
       const socketConnection = new CroChessWebSocket(
         `${import.meta.env.VITE_BACKEND_WS_URL}?uid=${userId}`,
         () => {
-          setUser(userId);
-          sessionStorage.setItem("user", userId);
+          setUser(`${userId}`);
+          sessionStorage.setItem("user", `${userId}`);
           // used to identify user if they refresh or disconnect
           setSocket(socketConnection);
         },

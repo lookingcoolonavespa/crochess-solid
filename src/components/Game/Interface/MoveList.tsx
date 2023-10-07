@@ -21,7 +21,7 @@ export function MoveList(props: HistoryDisplayProps) {
   createEffect(
     on([() => props.list], () => {
       scrollIntoView(scrollEndRef);
-    })
+    }),
   );
 
   return (
@@ -33,13 +33,13 @@ export function MoveList(props: HistoryDisplayProps) {
               const [wMove, bMove] = move;
               const whiteMoveBeingViewed = () => {
                 const moveBeingViewed = get2dArrIndexFrom1dArrIndex(
-                  props.moveBeingViewed
+                  props.moveBeingViewed,
                 );
                 return moveBeingViewed[0] === i() && moveBeingViewed[1] === 0;
               };
               const blackMoveBeingViewed = () => {
                 const moveBeingViewed = get2dArrIndexFrom1dArrIndex(
-                  props.moveBeingViewed
+                  props.moveBeingViewed,
                 );
                 return moveBeingViewed[0] === i() && moveBeingViewed[1] === 1;
               };

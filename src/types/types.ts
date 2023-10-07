@@ -16,7 +16,6 @@ export type Time = {
 export type Option<T> = null | T;
 
 export type Colors = "black" | "white";
-export type ColorsBackend = "w" | "b";
 
 export type GameSeekColors = Colors | "random";
 
@@ -36,14 +35,14 @@ const FILES = ["a", "b", "c", "d", "e", "f", "g", "h"] as const;
 
 export type _EnumerateFrom<
   N extends number,
-  Acc extends number[] = []
+  Acc extends number[] = [],
 > = Acc["length"] extends N
   ? Acc[number] & number
   : _EnumerateFrom<N, [...Acc, Acc["length"]]>;
 
 export type EnumerateFromOne<
   N extends number,
-  Acc extends number[] = [N]
+  Acc extends number[] = [N],
 > = Acc["length"] extends N
   ? Acc[number] & number
   : _EnumerateFrom<N, [...Acc, Acc["length"]]>;
@@ -54,7 +53,6 @@ export type SquareNotation = `${(typeof FILES)[number]}${EnumerateFromOne<
   typeof BOARD_LENGTH
 >}`;
 
-export type DrawRecordBackend = Record<ColorsBackend, boolean>;
 export type DrawRecord = Record<Colors, boolean>;
 
 export type Tuple<T, N extends number> = N extends N
@@ -95,11 +93,12 @@ export type GameState = {
   playingAgainstEngine: boolean;
 };
 
+export type GameOverStatus = {
+  type: "gameOver";
+  payload: GameOverDetails;
+};
 export type InterfaceStatus =
-  | {
-      type: "gameOver";
-      payload: GameOverDetails;
-    }
+  | GameOverStatus
   | {
       type:
         | "offeredDraw"
@@ -107,6 +106,23 @@ export type InterfaceStatus =
         | "resignConfirmation"
         | "offerDrawConfirmation";
     };
+
+type WhiteTimeOutPayload = {
+  method: "TimeOut";
+  white_draw_status: false;
+  black_draw_status: false;
+  white_time: 0;
+  result: "0-1";
+};
+type BlackTimeOutPayload = {
+  method: "TimeOut";
+  white_draw_status: false;
+  black_draw_status: false;
+  black_time: 0;
+  result: "1-0";
+};
+
+export type TimeOutPayload = WhiteTimeOutPayload | BlackTimeOutPayload;
 
 export type Init = {
   event: "init";
@@ -117,11 +133,11 @@ export type UpdateOnGameOver = {
   payload: GameOverGameStateFromBackend;
 };
 export type UpdateOnMove = {
-  event: "update";
+  event: "make move";
   payload: GameStateSchema;
 };
 export type UpdateDraw = {
   event: "update draw";
-  payload: DrawRecordBackend;
+  payload: DrawRecord;
 };
 export type Message = Init | UpdateOnMove | UpdateOnGameOver | UpdateDraw;

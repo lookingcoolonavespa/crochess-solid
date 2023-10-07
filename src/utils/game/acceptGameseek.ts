@@ -4,7 +4,10 @@ import {
 } from "../../constants";
 import { socket, user } from "../../globalState";
 import { Colors, GameSeek } from "../../types/types";
-import { ACCEPTED_EVENT } from "../../websocket/events";
+import {
+  ACCEPTED_EVENT,
+  START_ENGINE_GAME_EVENT,
+} from "../../websocket/events";
 import { GAMESEEKS_TOPIC } from "../../websocket/topics";
 
 function getRdmColor(): Colors {
@@ -65,10 +68,10 @@ export function initPlayEngine() {
 
   stompClient.publish({
     topic: GAMESEEKS_TOPIC,
-    event: ACCEPTED_EVENT,
+    event: START_ENGINE_GAME_EVENT,
     payload: {
-      w_id: whitePlayer,
-      b_id: blackPlayer,
+      white_id: whitePlayer,
+      black_id: blackPlayer,
       time: 1,
     },
   });

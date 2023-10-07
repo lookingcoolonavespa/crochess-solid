@@ -48,7 +48,6 @@ export const Home = () => {
 
   createEffect(function listenToAcceptedGameSeeks() {
     function onAcceptedGameseek(e: CustomEvent) {
-      console.log(e);
       navigate(`/${e.detail.gameId}`);
     }
     window.addEventListener("acceptedGameseek", onAcceptedGameseek);

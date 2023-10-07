@@ -14,22 +14,22 @@ export function parseCookies(cookie: string): { [key: string]: string } {
 export function getActivePlayer(
   gameId: string,
   whiteId: string,
-  blackId: string
+  blackId: string,
 ): Colors | null {
   const cookieObj = parseCookies(document.cookie);
   switch (true) {
-    case cookieObj[`${gameId}(w)`] === whiteId &&
-      cookieObj[`${gameId}(b)`] === blackId: {
+    case cookieObj[`${gameId}(white)`] === whiteId &&
+      cookieObj[`${gameId}(black)`] === blackId: {
       // player is playing on two separate tabs
       const user = sessionStorage.getItem("user");
       if (user === whiteId) return "white";
       if (user === blackId) return "black";
       return null;
     }
-    case cookieObj[`${gameId}(w)`] === whiteId: {
+    case cookieObj[`${gameId}(white)`] === whiteId: {
       return "white";
     }
-    case cookieObj[`${gameId}(b)`] === blackId: {
+    case cookieObj[`${gameId}(black)`] === blackId: {
       return "black";
     }
     default:
