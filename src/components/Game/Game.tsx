@@ -247,7 +247,13 @@ export function Game() {
                     />
                   </Show>
                 </div>
-                <Show when={activePlayer() && gameState.active}>
+                <Show
+                  when={
+                    activePlayer() &&
+                    gameState.active &&
+                    !gameState.playingAgainstEngine
+                  }
+                >
                   <GameStatusControls
                     offerDraw={offerDraw}
                     resign={resign}
@@ -284,7 +290,7 @@ export function Game() {
             activePlayer={activePlayer}
           />
           <Interface
-            timersVisible={!gameState.playingAgainstEngine}
+            playingAgainstEngine={!gameState.playingAgainstEngine}
             gameActive={gameState.active}
             status={interfaceStatus()}
             setStatus={setInterfaceStatus}
