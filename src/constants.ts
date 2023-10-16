@@ -1,4 +1,4 @@
-import { Colors, ColorsBackend, GameType } from "./types/types";
+import { Colors,  GameType } from "./types/types";
 
 export const NOT_CONNECTED_TO_SOCKET_ERR_MSG = "not connected to websocket";
 export const USER_NOT_FOUND_ERR_MSG = "user not found";
@@ -40,10 +40,6 @@ function createTimeControl(
 export const OPP_COLOR: Record<Colors, Colors> = {
   white: "black",
   black: "white",
-};
-export const COLORS_FROM_CHAR: Record<ColorsBackend, Colors> = {
-  w: "white",
-  b: "black",
 };
 
 export const PIECE_TYPES = ["r", "n", "b", "q", "k", "p"] as const;
