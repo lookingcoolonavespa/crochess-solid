@@ -4,6 +4,7 @@ import wasm from "vite-plugin-wasm";
 
 export default defineConfig({
   plugins: [solidPlugin(), wasm()],
+  base: "https://nksupermarket.github.io/crochess-solid",
   server: {
     port: 3000,
     fs: {
