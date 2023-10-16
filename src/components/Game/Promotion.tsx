@@ -1,7 +1,7 @@
 import Piece from "./Piece";
 import styles from "../../styles/Game/Promotion.module.scss";
 import { Colors, PromotePieceType, Square } from "../../types/types";
-import { ClientGameInterface } from "rust_engine";
+import { ClientGameInterface } from "crochess_engine";
 import { JSX } from "solid-js";
 
 interface PromotionProps {

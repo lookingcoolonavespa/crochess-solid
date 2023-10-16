@@ -1,5 +1,5 @@
-import { ClientGameInterface } from "rust_engine";
-import initRustChess, { set_console_error_panic_hook } from "rust_engine";
+import { ClientGameInterface } from "crochess_engine";
+import initRustChess, { set_console_error_panic_hook } from "crochess_engine";
 
 self.onmessage = async (msg) => {
   console.log(msg.data);

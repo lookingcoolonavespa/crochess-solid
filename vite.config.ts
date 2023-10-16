@@ -8,7 +8,7 @@ export default defineConfig({
   server: {
     port: 3000,
     fs: {
-      allow: [".", "../rust_engine/pkg/"],
+      allow: [".", "../crochess_engine/pkg/"],
     },
   },
   build: {
@@ -18,6 +18,6 @@ export default defineConfig({
     extensions: [".js", ".ts", ".jsx", ".tsx", ".json", ".wasm"],
   },
   optimizeDeps: {
-    exclude: ["rust_engine"],
+    exclude: ["crochess_engine"],
   },
 });

@@ -1,6 +1,6 @@
 /* @refresh reload */
 import { render } from "solid-js/web";
-import initRustChess, { set_console_error_panic_hook } from "rust_engine";
+import initRustChess, { set_console_error_panic_hook } from "crochess_engine";
 
 import "./styles/index.scss";
 import App from "./App";

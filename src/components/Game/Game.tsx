@@ -25,7 +25,7 @@ import {
   UpdateOnGameOver,
   UpdateOnMove,
 } from "../../types/types";
-import { ClientGameInterface as GameInterface } from "rust_engine";
+import { ClientGameInterface as GameInterface } from "crochess_engine";
 import {
   GameOverDetails,
   GameSchema,

@@ -11,7 +11,7 @@ import {
 } from "../../types/types";
 import Piece from "./Piece";
 import { FILES, PIECE_TYPES, RANKS } from "../../constants";
-import { ClientGameInterface } from "rust_engine";
+import { ClientGameInterface } from "crochess_engine";
 import Promotion from "./Promotion";
 import { useParams } from "@solidjs/router";
 import { parseCookies } from "../../utils/game/activePlayer";
