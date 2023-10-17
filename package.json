@@ -38,7 +38,7 @@
   },
   "dependencies": {
     "@solidjs/router": "^0.8.2",
-    "crochess_engine": "^0.1.0",
+    "crochess_engine": "^0.1.1",
     "dayjs": "^1.11.8",
     "sass": "^1.63.3",
     "solid-js": "^1.6.10",
