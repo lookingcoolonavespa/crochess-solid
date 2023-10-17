@@ -19,7 +19,11 @@ export class CroChessWebSocket {
   private subscriptions: { [key: string]: CroChessWebSocketSubscription };
   private onDisconnect: () => void;
 
-  constructor(url: string, onConnect: () => void, onDisconnect: () => void) {
+  constructor(
+    url: string,
+    onConnect: (conn: CroChessWebSocket) => void,
+    onDisconnect: () => void,
+  ) {
     this.websocket = new WebSocket(url);
     this.subscriptions = {
       error: new CroChessWebSocketSubscription("error", this, function (
@@ -31,7 +35,7 @@ export class CroChessWebSocket {
     this.onDisconnect = onDisconnect;
 
     this.websocket.onopen = function (this: CroChessWebSocket) {
-      onConnect();
+      onConnect(this);
 
       this.websocket.onmessage = function (
         this: CroChessWebSocket,
@@ -54,11 +58,17 @@ export class CroChessWebSocket {
       ) {
         console.log("disconnected: ", ev.reason);
         console.log("reconnecting...");
-        this.websocket = new WebSocket(url);
-        Object.entries(this.subscriptions).forEach(([topic, sub]) => {
-          this.subscribe(topic, sub.messageHandler);
-        });
-        console.log(this.websocket);
+
+        new CroChessWebSocket(
+          url,
+          (conn) => {
+            onConnect(conn);
+            Object.entries(this.subscriptions).forEach(([topic, sub]) => {
+              conn.subscribe(topic, sub.messageHandler);
+            });
+          },
+          onDisconnect,
+        );
       }.bind(this);
     }.bind(this);
   }

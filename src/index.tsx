@@ -32,9 +32,9 @@ if (import.meta.env.DEV && !(root instanceof HTMLElement)) {
         return Math.floor(2147483647 * Math.random());
       }
 
-      const socketConnection = new CroChessWebSocket(
+      new CroChessWebSocket(
         `${import.meta.env.VITE_BACKEND_WS_URL}?uid=${userId}`,
-        () => {
+        (socketConnection: CroChessWebSocket) => {
           setUser(`${userId}`);
           sessionStorage.setItem("user", `${userId}`);
           // used to identify user if they refresh or disconnect
