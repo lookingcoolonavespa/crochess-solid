@@ -24,14 +24,17 @@ export default function Timer(props: TimerProps) {
     const interval: number = window.setInterval(() => {
       const elapsed = Date.now() - (props.stampAtTurnStart as number);
       const timeLeft = (props.timeLeftAtTurnStart as number) - elapsed;
-      if (timeLeft < 0) return clearInterval(interval);
+      if (timeLeft < 0) {
+        props.setTime(0);
+        return clearInterval(interval);
+      }
       props.setTime(timeLeft);
       // if (!timeLeft) return clearInterval(interval);
     }, 1);
 
     onCleanup(() => clearInterval(interval));
   });
-  console.log("timer component")
+  console.log("timer component");
 
   return (
     <div class={props.className} classList={{ active: props.active }}>
