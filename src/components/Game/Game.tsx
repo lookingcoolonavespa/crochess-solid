@@ -287,7 +287,8 @@ export function Game() {
             getLegalMoves={board.legal_moves_at_sq.bind(board)}
             validateMove={validateMove}
             isPromotion={isPromotion}
-            activePlayer={gameState.activeColor == activePlayer()}
+            activePlayer={activePlayer()}
+            activeTurn={activePlayer() == gameState.activeColor}
           />
           <Interface
             playingAgainstEngine={gameState.playingAgainstEngine}

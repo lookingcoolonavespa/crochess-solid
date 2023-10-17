@@ -14,9 +14,9 @@ import { FILES, PIECE_TYPES, RANKS } from "../../constants";
 import { ClientGameInterface } from "crochess_engine";
 import Promotion from "./Promotion";
 import { useParams } from "@solidjs/router";
-import { getActivePlayer, parseCookies } from "../../utils/game/activePlayer";
 import { sendMove } from "../../utils/game/ingameActions";
 import { user } from "../../globalState";
+import { getActivePlayer } from "../../utils/game/activePlayer";
 
 //prettier-ignore
 const squaresFromBlackPov = [
@@ -48,7 +48,8 @@ type GameboardProps = {
   getLegalMoves: (square: Square) => Uint32Array;
   validateMove: (to: number) => boolean;
   isPromotion: (to: number) => boolean;
-  activePlayer: boolean;
+  activePlayer: Option<Colors>;
+  activeTurn: boolean;
 };
 
 export function Gameboard(props: GameboardProps) {
@@ -67,7 +68,7 @@ export function Gameboard(props: GameboardProps) {
   function onMakeMove(to: number, promotePiece: string | undefined) {
     if (!props.gameActive) return;
 
-    if (!props.activePlayer) return;
+    if (!props.activeTurn) return;
     if (!props.squareToMove) return;
     let moveNotation = ClientGameInterface.make_move_notation(
       props.squareToMove,
@@ -115,7 +116,7 @@ export function Gameboard(props: GameboardProps) {
                 "grid-area": ClientGameInterface.name_of_square(s),
               }}
               onClick={() => {
-                if (props.activePlayer() !== null) {
+                if (props.activePlayer !== null) {
                   if (!props.squareToMove) return;
 
                   if (props.isPromotion(s)) return setPromotePopupSquare(s);
@@ -199,8 +200,8 @@ export function Gameboard(props: GameboardProps) {
                       return;
 
                     if (
-                      props.activePlayer() !== null &&
-                      getColorOfPiece() !== props.activePlayer()
+                      props.activePlayer !== null &&
+                      getColorOfPiece() !== props.activePlayer
                     ) {
                       if (!props.squareToMove) return; // means this click is not a capture
 
