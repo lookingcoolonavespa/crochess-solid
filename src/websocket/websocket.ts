@@ -15,14 +15,12 @@ export class WebSocketMessage {
 type WebSocketMessageHandler = (message: WebSocketMessage) => void;
 
 export class CroChessWebSocket {
-  private url: string;
   private websocket: WebSocket;
   private subscriptions: { [key: string]: CroChessWebSocketSubscription };
   private onDisconnect: () => void;
 
   constructor(url: string, onConnect: () => void, onDisconnect: () => void) {
     this.websocket = new WebSocket(url);
-    this.url = url;
     this.subscriptions = {
       error: new CroChessWebSocketSubscription("error", this, function (
         message,
@@ -55,7 +53,12 @@ export class CroChessWebSocket {
         ev: CloseEvent,
       ) {
         console.log("disconnected: ", ev.reason);
+        console.log("reconnecting...");
         this.websocket = new WebSocket(url);
+        Object.entries(this.subscriptions).forEach(([topic, sub]) => {
+          this.subscribe(topic, sub.messageHandler);
+        });
+        console.log(this.websocket);
       }.bind(this);
     }.bind(this);
   }

@@ -16,7 +16,6 @@ import Promotion from "./Promotion";
 import { useParams } from "@solidjs/router";
 import { sendMove } from "../../utils/game/ingameActions";
 import { user } from "../../globalState";
-import { getActivePlayer } from "../../utils/game/activePlayer";
 
 //prettier-ignore
 const squaresFromBlackPov = [
@@ -68,6 +67,9 @@ export function Gameboard(props: GameboardProps) {
   function onMakeMove(to: number, promotePiece: string | undefined) {
     if (!props.gameActive) return;
 
+    let u = user();
+    if (!u) return;
+
     if (!props.activeTurn) return;
     if (!props.squareToMove) return;
     let moveNotation = ClientGameInterface.make_move_notation(
@@ -80,7 +82,7 @@ export function Gameboard(props: GameboardProps) {
     }
 
     try {
-      sendMove(gameId, user(), moveNotation);
+      sendMove(gameId, u, moveNotation);
     } catch (err) {
       console.log(err);
     }
