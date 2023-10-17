@@ -72,7 +72,10 @@ export class CroChessWebSocket {
             onConnect(conn);
           },
           onDisconnect,
-          this.subscriptions,
+          Object.entries(this.subscriptions).reduce(
+            (acc, [topic, sub]) => ({ ...acc, [topic]: sub.messageHandler }),
+            {},
+          ),
         );
       }.bind(this);
     }.bind(this);
