@@ -23,6 +23,7 @@ export class CroChessWebSocket {
     url: string,
     onConnect: (conn: CroChessWebSocket) => void,
     onDisconnect: () => void,
+    subscriptions?: { [key: string]: WebSocketMessageHandler },
   ) {
     this.websocket = new WebSocket(url);
     this.subscriptions = {
@@ -32,6 +33,12 @@ export class CroChessWebSocket {
         console.error(message.payload);
       }),
     };
+    if (subscriptions) {
+      Object.entries(subscriptions).forEach(([topic, handler]) => {
+        if (topic === "error") return;
+        this.subscribe(topic, handler);
+      });
+    }
     this.onDisconnect = onDisconnect;
 
     this.websocket.onopen = function (this: CroChessWebSocket) {
@@ -63,12 +70,9 @@ export class CroChessWebSocket {
           url,
           (conn) => {
             onConnect(conn);
-            // Object.entries(this.subscriptions).forEach(([topic, sub]) => {
-            //   if (topic === "error") return;
-            //   conn.subscribe(topic, sub.messageHandler);
-            // });
           },
           onDisconnect,
+          this.subscriptions,
         );
       }.bind(this);
     }.bind(this);
