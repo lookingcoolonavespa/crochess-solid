@@ -15,12 +15,14 @@ export class WebSocketMessage {
 type WebSocketMessageHandler = (message: WebSocketMessage) => void;
 
 export class CroChessWebSocket {
+  private url: string;
   private websocket: WebSocket;
   private subscriptions: { [key: string]: CroChessWebSocketSubscription };
   private onDisconnect: () => void;
 
   constructor(url: string, onConnect: () => void, onDisconnect: () => void) {
     this.websocket = new WebSocket(url);
+    this.url = url;
     this.subscriptions = {
       error: new CroChessWebSocketSubscription("error", this, function (
         message,
@@ -42,15 +44,19 @@ export class CroChessWebSocket {
         if (message.topic in this.subscriptions) {
           this.subscriptions[message.topic].messageHandler(message);
         } else {
-          console.error(
+          console.warn(
             `received message for topic: "${message.topic}" but you are not subscribed`,
           );
         }
       }.bind(this);
 
-      this.websocket.onclose = function (ev: CloseEvent) {
+      this.websocket.onclose = function (
+        this: CroChessWebSocket,
+        ev: CloseEvent,
+      ) {
         console.log("disconnected: ", ev.reason);
-      };
+        this.websocket = new WebSocket(url);
+      }.bind(this);
     }.bind(this);
   }
 
