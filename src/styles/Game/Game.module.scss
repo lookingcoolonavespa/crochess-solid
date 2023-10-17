@@ -28,7 +28,7 @@
   width: 100%;
 
   .board_ctn {
-    margin: 0 auto 5%;
+    margin: 0 auto 10%;
 
     @include mixins.media(phone) {
       margin: 0 auto 10%;
