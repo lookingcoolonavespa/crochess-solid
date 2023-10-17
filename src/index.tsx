@@ -32,6 +32,7 @@ if (import.meta.env.DEV && !(root instanceof HTMLElement)) {
         return Math.floor(2147483647 * Math.random());
       }
 
+      console.log(`${import.meta.env.VITE_BACKEND_WS_URL}?uid=${userId}`);
       const socketConnection = new CroChessWebSocket(
         `${import.meta.env.VITE_BACKEND_WS_URL}?uid=${userId}`,
         () => {
@@ -45,6 +46,7 @@ if (import.meta.env.DEV && !(root instanceof HTMLElement)) {
           setSocket(null);
         },
       );
+      console.log("did not encounter illegal string");
 
       onCleanup(function deactivateSocket() {
         socket()?.close();
