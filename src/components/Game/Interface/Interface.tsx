@@ -41,11 +41,13 @@ interface TimeDetails extends Omit<TimerProps, "className"> {
 export default function Interface(props: InterfaceProps) {
   return (
     <div class={styles.main}>
+      <Show when={!props.playingAgainstEngine}>
         <Timer
           className={`${styles.timer} ${styles.top}`}
           {...props.topTimer}
         />
         <TimerBar maxTime={props.topTimer.maxTime} time={props.topTimer.time} />
+      </Show>
       <div class={styles.display_wrapper}>
         <Show when={props.status}>
           <GameStatusDisplay

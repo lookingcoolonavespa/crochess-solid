@@ -3,6 +3,7 @@ import { socket } from "../../globalState";
 import { GameOverDetails } from "../../types/interfaces";
 import { Colors, MoveNotation } from "../../types/types";
 import { GAME_BASE_TOPIC } from "../../websocket/topics";
+import EngineWorker from "./engineMoveWorkerScript?worker";
 
 export function offerDraw(gameId: string, offerer: Colors) {
   let stompClient = socket();
@@ -73,9 +74,7 @@ export function sendMove(gameId: string, playerId: string, move: MoveNotation) {
 }
 
 export async function makeEngineMove(gameId: string, moves: string[]) {
-  const worker = new Worker("/src/utils/game/engineMoveWorkerScript.ts", {
-    type: "module",
-  });
+  const worker = new EngineWorker();
   worker.postMessage({ moves: moves.join(" ") });
   worker.onmessage = (msg) => {
     sendMove(gameId, "engine", msg.data.engineMove);
