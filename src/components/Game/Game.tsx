@@ -238,7 +238,7 @@ export function Game() {
                     getLegalMoves={board.legal_moves_at_sq.bind(board)}
                     validateMove={validateMove}
                     isPromotion={isPromotion}
-                    activePlayer={activePlayer}
+                    activePlayer={gameState.activeColor == activePlayer()}
                   />
                   <Show when={!gameState.playingAgainstEngine}>
                     <Timer
@@ -287,7 +287,7 @@ export function Game() {
             getLegalMoves={board.legal_moves_at_sq.bind(board)}
             validateMove={validateMove}
             isPromotion={isPromotion}
-            activePlayer={activePlayer}
+            activePlayer={gameState.activeColor == activePlayer()}
           />
           <Interface
             playingAgainstEngine={gameState.playingAgainstEngine}

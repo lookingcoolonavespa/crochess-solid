@@ -14,8 +14,9 @@ import { FILES, PIECE_TYPES, RANKS } from "../../constants";
 import { ClientGameInterface } from "crochess_engine";
 import Promotion from "./Promotion";
 import { useParams } from "@solidjs/router";
-import { parseCookies } from "../../utils/game/activePlayer";
+import { getActivePlayer, parseCookies } from "../../utils/game/activePlayer";
 import { sendMove } from "../../utils/game/ingameActions";
+import { user } from "../../globalState";
 
 //prettier-ignore
 const squaresFromBlackPov = [
@@ -47,7 +48,7 @@ type GameboardProps = {
   getLegalMoves: (square: Square) => Uint32Array;
   validateMove: (to: number) => boolean;
   isPromotion: (to: number) => boolean;
-  activePlayer: () => Option<Colors>;
+  activePlayer: boolean;
 };
 
 export function Gameboard(props: GameboardProps) {
@@ -66,8 +67,7 @@ export function Gameboard(props: GameboardProps) {
   function onMakeMove(to: number, promotePiece: string | undefined) {
     if (!props.gameActive) return;
 
-    let activePlayer = props.activePlayer();
-    if (!activePlayer) return;
+    if (!props.activePlayer) return;
     if (!props.squareToMove) return;
     let moveNotation = ClientGameInterface.make_move_notation(
       props.squareToMove,
@@ -78,11 +78,8 @@ export function Gameboard(props: GameboardProps) {
       throw new Error(`${moveNotation} is not a valid move`);
     }
 
-    // get the playerId from cookie so players can play from multiple tabs
-    const cookieObj = parseCookies(document.cookie);
-    const playerId = cookieObj[`${gameId}(${activePlayer})`];
     try {
-      sendMove(gameId, playerId, moveNotation);
+      sendMove(gameId, user(), moveNotation);
     } catch (err) {
       console.log(err);
     }
