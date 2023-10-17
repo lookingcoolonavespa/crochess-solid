@@ -1,9 +1,6 @@
 @use "./mixins";
 @use "./variables";
 
-:root {
-    --loader-size: 5%;
-}
 :root[color-mode="light"] {
   @include mixins.getThemeColors(variables.$colors-light);
 }
