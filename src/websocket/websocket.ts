@@ -33,16 +33,16 @@ export class CroChessWebSocket {
         console.error(message.payload);
       }),
     };
-    if (subscriptions) {
-      Object.entries(subscriptions).forEach(([topic, handler]) => {
-        if (topic === "error") return;
-        this.subscribe(topic, handler);
-      });
-    }
     this.onDisconnect = onDisconnect;
 
     this.websocket.onopen = function (this: CroChessWebSocket) {
       onConnect(this);
+      if (subscriptions) {
+        Object.entries(subscriptions).forEach(([topic, handler]) => {
+          if (topic === "error") return;
+          this.subscribe(topic, handler);
+        });
+      }
 
       this.websocket.onmessage = function (
         this: CroChessWebSocket,
