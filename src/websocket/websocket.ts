@@ -63,11 +63,10 @@ export class CroChessWebSocket {
           url,
           (conn) => {
             onConnect(conn);
-            console.log(this.subscriptions);
-            Object.entries(this.subscriptions).forEach(([topic, sub]) => {
-              if (topic === "error") return;
-              conn.subscribe(topic, sub.messageHandler);
-            });
+            // Object.entries(this.subscriptions).forEach(([topic, sub]) => {
+            //   if (topic === "error") return;
+            //   conn.subscribe(topic, sub.messageHandler);
+            // });
           },
           onDisconnect,
         );
