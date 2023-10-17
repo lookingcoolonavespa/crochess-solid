@@ -4,7 +4,7 @@ import initRustChess, { set_console_error_panic_hook } from "crochess_engine";
 
 import "./styles/index.scss";
 import App from "./App";
-import { Route, Router, Routes } from "@solidjs/router";
+import { hashIntegration, Route, Router, Routes } from "@solidjs/router";
 import { Game } from "./components/Game/Game";
 import { onCleanup, onMount } from "solid-js";
 import { setUser, socket, setSocket } from "./globalState";
@@ -55,7 +55,7 @@ if (import.meta.env.DEV && !(root instanceof HTMLElement)) {
 
   render(
     () => (
-      <Router>
+      <Router source={hashIntegration()}>
         <Routes>
           <Route path="/" component={App} />
           <Route path="/:id" component={Game} />

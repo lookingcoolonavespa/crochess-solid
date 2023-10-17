@@ -1,4 +1,4 @@
-import { Match, Switch } from "solid-js";
+import { Show } from "solid-js";
 import { GameType } from "../../../types/types";
 import styles from "../../../styles/Home/TimeControlButton.module.scss";
 
@@ -7,33 +7,31 @@ type TimeControlButtonProps = {
   increment: number | null;
   type: GameType | "custom";
   searching: boolean;
+  active: boolean;
   onClick: () => void;
 };
 
 export const TimeControlButton = (props: TimeControlButtonProps) => {
   return (
     <div
-      class={[styles.main, "hover-highlight outline"].join(" ")}
+      class={styles.main}
       classList={{
-        "no-hover": props.searching,
-        "sm-box-shadow": props.searching,
-        searching: props.searching,
+        [styles.searching]: props.searching,
+        [styles.active]: props.active,
       }}
       onClick={props.onClick}
     >
+      <Show when={props.active}>
+        <div class="loader" />
+      </Show>
       <h3 class={styles.title}>
         {props.type === "custom"
           ? props.type
           : `${props.time} + ${props.increment}`}
       </h3>
-      <Switch>
-        <Match when={props.searching}>
-          <div class="sm-loader"></div>
-        </Match>
-        <Match when={props.type !== "custom"}>
-          <p class={styles.caption}>{props.type}</p>
-        </Match>
-      </Switch>
+      <Show when={props.type !== "custom"}>
+        <p class={styles.caption}>{props.type}</p>
+      </Show>
     </div>
   );
 };

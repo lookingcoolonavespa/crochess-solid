@@ -290,7 +290,7 @@ export function Game() {
             activePlayer={activePlayer}
           />
           <Interface
-            playingAgainstEngine={!gameState.playingAgainstEngine}
+            playingAgainstEngine={gameState.playingAgainstEngine}
             gameActive={gameState.active}
             status={interfaceStatus()}
             setStatus={setInterfaceStatus}

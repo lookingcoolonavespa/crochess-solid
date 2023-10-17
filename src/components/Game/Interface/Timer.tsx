@@ -31,6 +31,7 @@ export default function Timer(props: TimerProps) {
 
     onCleanup(() => clearInterval(interval));
   });
+  console.log("timer component")
 
   return (
     <div class={props.className} classList={{ active: props.active }}>

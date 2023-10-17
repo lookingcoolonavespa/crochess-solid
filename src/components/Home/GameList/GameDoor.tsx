@@ -32,6 +32,7 @@ export default function GameDoor(props: GameDoorProps) {
         }
       }}
     >
+    <div class="loader" />
       {[
         props.gameSeek.color,
         `${fromMillisecondsToMinutes(props.gameSeek.time)}+${

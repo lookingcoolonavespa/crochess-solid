@@ -4,15 +4,16 @@
   @include mixins.flexCenter(column);
   row-gap: 0.8em;
   border-radius: 50%;
-  // border: 1px solid black;
   height: 100%;
   position: relative;
   z-index: 10;
+  cursor: pointer;
 
   .title {
     padding-top: 0.3em;
     font-weight: 400;
     margin: 0;
+    z-index: 1;
   }
 
   .caption {
@@ -22,15 +23,100 @@
       weight: 400;
     }
     opacity: 0.7;
+    z-index: 1;
+  }
+
+  &:before {
+    content: "";
+    position: absolute;
+    top: 1%;
+    left: 5%;
+    width: 90%;
+    height: 90%;
+    border-radius: 50%;
+    background: none;
+    transition: all ease-out 0.5s;
+  }
+
+  &:after {
+    @include mixins.fullSizeAbsolute();
+    content: "";
+    background: radial-gradient(
+      circle at 33% 33%,
+      var(--foreground) 60%,
+      rgba(var(--RGB_accent-1), 0.5)
+    );
+    transition: all ease-out 0.1s;
+    border-radius: 50%;
+    z-index: 0;
+  }
+
+  &:hover::after {
+    border: none;
+    transform: scale(1.05);
+  }
+  &:hover::before {
+    filter: blur(5px);
+    background: radial-gradient(
+      circle at 0% 0px,
+      #f5efe5,
+      rgba(245, 239, 229, 0) 58%
+    );
+    z-index: 1;
   }
 }
 
-// @media screen and (max-width: 568px) {
-//   .main {
-//     .title {
-//     }
-//
-//     .caption {
-//     }
-//   }
-// }
+.searching {
+  opacity: 0.5;
+  pointer-events: none;
+  cursor: default;
+}
+
+.active {
+  opacity: 1;
+}
+
+$size: 5%;
+$y: calc($size * -210);
+:global(.loader) {
+  // credit: @jh3yy
+  width: $size;
+  aspect-ratio: 1;
+  background: white;
+  border-radius: 50%;
+  position: absolute;
+  /* Rely on transform order to spin it */
+  transform: rotate(0deg) translateY($y);
+  animation: spin 3s infinite linear;
+
+  &::after {
+    content: "";
+    width: calc($size * 440);
+    aspect-ratio: 1;
+    position: absolute;
+    top: 0%;
+    left: 50%;
+    translate: -50% 0px;
+    /* Create a conic-gradient */
+    background: conic-gradient(white, hsl(195, 37%, 60%), transparent 40%);
+    border-radius: 50%;
+    /* Mask it to leave a border. That 1px difference helps with making it look less rough */
+    mask: radial-gradient(transparent 64%, white 65%);
+  }
+
+  &::before {
+    content: "";
+    position: absolute;
+    inset: -90%;
+    border-radius: 50%;
+    background: white;
+    filter: blur(10px);
+    z-index: -1;
+  }
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(-360deg) translateY($y);
+  }
+}

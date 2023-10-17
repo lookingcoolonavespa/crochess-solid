@@ -17,7 +17,7 @@ export const GameGrid = (props: GameGridProps) => {
 
   return (
     <div
-      class={[styles.game_grid_main, "foreground"].join(" ")}
+      class={styles.game_grid_main}
       classList={{
         inactive: !props.active,
       }}
@@ -44,7 +44,8 @@ export const GameGrid = (props: GameGridProps) => {
               time={tc.time}
               increment={tc.increment}
               type={tc.type}
-              searching={activeSearch() === i}
+              searching={activeSearch() != null}
+              active={activeSearch() === i}
               onClick={onClick}
             />
           </div>
