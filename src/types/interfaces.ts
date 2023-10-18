@@ -23,10 +23,8 @@ export interface GameOverGameState extends GameStateSchema, GameOverDetails {}
 
 export interface GameStateSchema {
   time_stamp_at_turn_start: Option<number>;
-  fen: string;
   white_time: number;
   black_time: number;
-  history: Option<string>;
   moves: Option<string>;
 }
 

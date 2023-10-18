@@ -80,11 +80,9 @@ export function Game() {
 
   const [gameState, setGameState] = createStore(defaultGameState);
   const {
-    boardStates,
     boardBeingViewed,
     currentBoard,
     moveListControls,
-    setBoardStates,
     setBoardBeingViewed,
   } = useBoardBeingViewed(gameState);
   const {
@@ -99,7 +97,7 @@ export function Game() {
   const { id: gameId } = useParams();
   const [activePlayer, setActivePlayer] = createSignal<Option<Colors>>(null);
 
-  let board: GameInterface = GameInterface.from_history("");
+  let board: GameInterface = GameInterface.from_moves_str("");
 
   createEffect(function subscribeToGame() {
     if (!socket) return;
@@ -113,10 +111,7 @@ export function Game() {
         case "game over":
         case "make move": {
           const event = message.event;
-          onGameUpdate(
-            { event, payload: message.payload },
-            gameState.moves.length,
-          );
+          onGameUpdate({ event, payload: message.payload });
           break;
         }
 
@@ -211,10 +206,8 @@ export function Game() {
                 moveList={gameState.history}
                 controls={moveListControls}
                 flipBoard={flipBoard}
-                moveBeingViewed={
-                  boardBeingViewed() -
-                  (boardStates().length - gameState.moves.length)
-                }
+                // need to subtract one to account for board with no moves played
+                moveBeingViewed={boardBeingViewed() - 1}
               />
               <div class={styles.mobile_main_content}>
                 <div class={styles.board_ctn}>
@@ -227,9 +220,7 @@ export function Game() {
                   <Gameboard
                     gameActive={gameState.active}
                     latestBoardBeingViewed={
-                      boardBeingViewed() ===
-                      boardStates().length -
-                        (boardStates().length - gameState.moves.length)
+                      boardBeingViewed() === gameState.moves.length
                     }
                     view={gameboardView()}
                     board={currentBoard()}
@@ -277,9 +268,7 @@ export function Game() {
           <Gameboard
             gameActive={gameState.active}
             latestBoardBeingViewed={
-              boardBeingViewed() ===
-              boardStates().length -
-                (boardStates().length - gameState.moves.length)
+              boardBeingViewed() === gameState.moves.length
             }
             view={gameboardView()}
             board={currentBoard()}
@@ -305,10 +294,8 @@ export function Game() {
             history={gameState.history}
             historyControls={moveListControls}
             flipBoard={flipBoard}
-            moveBeingViewed={
-              boardBeingViewed() -
-              (boardStates().length - gameState.moves.length)
-            }
+            // need to subtract one to account for board with no moves played
+            moveBeingViewed={boardBeingViewed() - 1}
           />
         </Show>
       </div>
@@ -316,7 +303,7 @@ export function Game() {
   );
 
   function initState(game: GameSchema) {
-    board = GameInterface.from_history(game.moves || "");
+    board = GameInterface.from_moves_str(game.moves || "");
     let activeColor = board.active_side() as Colors;
 
     let tmpTimeDetails = {
@@ -359,7 +346,6 @@ export function Game() {
         method: game.method,
         result: game.result,
       };
-      setBoardStates(getBoardStates(moves));
       setBoardBeingViewed(moves?.length || 0);
       setGameboardView(() => activePlayer || "white");
       setTimeDetails(tmpTimeDetails);
@@ -369,7 +355,7 @@ export function Game() {
           game.white_id === "engine" || game.black_id === "engine",
         active: !game.result,
         moves: moves,
-        history: parseHistory(game.history || ""),
+        history: parseHistory(board.history()),
       });
 
       const drawRecord = {
@@ -414,16 +400,12 @@ export function Game() {
     }
   }
 
-  function onGameUpdate(
-    data: UpdateOnGameOver | UpdateOnMove,
-    movesSoFar: number,
-  ) {
+  function onGameUpdate(data: UpdateOnGameOver | UpdateOnMove) {
     const game = data.payload;
     game.moves = game.moves || "";
+    let move = game.moves;
 
-    const history = parseHistory(game.history || "");
-    let moves = game.moves.split(" ");
-    if (moves.length != movesSoFar) board.make_move(moves[moves.length - 1]);
+    board.make_move(game.moves);
 
     let activeColor = board.active_side() as Colors;
 
@@ -439,20 +421,20 @@ export function Game() {
     tmpTimeDetails[OPP_COLOR[activeColor]].time =
       activeColor === "white" ? game.black_time : game.white_time;
 
+    let allMoves = [...gameState.moves, move];
     batch(() => {
       setBoardBeingViewed((prev) => {
-        if (prev === moves.length - 1) return prev + 1;
+        if (prev === gameState.moves.length) return prev + 1;
         else return prev;
       });
       setTimeDetails(tmpTimeDetails);
       setGameState((prev) => ({
         ...prev,
-        active: data.event != "game over",
         activeColor,
-        moves,
-        history,
+        moves: prev.moves ? allMoves : [move],
+        history: parseHistory(board.history()),
+        active: data.event != "game over",
       }));
-      setBoardStates((prev) => [...prev, board.to_string()]);
 
       if (data.event == "game over") {
         setInterfaceStatus({
@@ -466,7 +448,7 @@ export function Game() {
     });
 
     if (engine.active && activeColor === engine.color) {
-      makeEngineMove(gameId, moves);
+      makeEngineMove(gameId, allMoves);
     }
   }
 
@@ -519,22 +501,12 @@ export function Game() {
     });
   }
 
-  function getBoardStates(moves: MoveNotation[]): string[] {
-    let game = GameInterface.from_history("");
-
-    return [
-      game.to_string(),
-      ...moves.map((move) => {
-        game.make_move(move);
-        return game.to_string();
-      }),
-    ];
-  }
-
   function parseHistory(history: string): HistoryArr {
     return history === ""
       ? []
-      : history
+      : // need the extra space for the .slice(1, -1) to work
+        // need to slice(1, -1) to remove leading space and any numbers behind it
+        (history + " ")
           .split(".")
           .slice(1)
           .reduce(function parseIntoPairs(acc, curr) {
@@ -575,7 +547,6 @@ export function Game() {
 
   function useBoardBeingViewed(gameState: GameState) {
     const [boardBeingViewed, setBoardBeingViewed] = createSignal<number>(0);
-    const [boardStates, setBoardStates] = createSignal<string[]>([]);
 
     // storing the board in boardArr so currentBoard returns the same array but just with the contents changed
     let boardArr: Option<Board> = null;
@@ -585,10 +556,10 @@ export function Game() {
         boardArr.splice(
           0,
           64,
-          ...(boardStates()[boardIdx || 0]?.split("") as Board),
+          ...(board.board_state(boardIdx)?.split("") as Board),
         );
       } else {
-        boardArr = boardStates()[boardIdx || 0]?.split("") as Board;
+        boardArr = board.board_state(boardIdx)?.split("") as Board;
       }
       return boardArr;
     }
@@ -621,11 +592,9 @@ export function Game() {
     };
 
     return {
-      boardStates,
       boardBeingViewed,
       currentBoard,
       moveListControls,
-      setBoardStates,
       setBoardBeingViewed,
     };
   }
