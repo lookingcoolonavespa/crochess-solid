@@ -16,6 +16,7 @@ import { FlatBtn } from "../ui-elements/buttons/FlatBtn";
 import { wasmSupported } from "../../utils/wasmSupported";
 import { createGameSeek } from "../../utils/game/createGameSeek";
 import { initPlayEngine } from "../../utils/game/acceptGameseek";
+import { createStore } from "solid-js/store";
 
 const GAME_GRID_INDEX = 0;
 const GAME_LIST_INDEX = 1;
@@ -26,7 +27,7 @@ const wasmIsSupported = wasmSupported();
 export const Home = () => {
   const [popup, setPopup] = createSignal(false);
   const [error, setError] = createSignal("");
-  const [activeTabIndex, setActiveTabIndex] = createSignal(0);
+  const [tabDetails, setTabDetails] = createStore({ active: 0, prev: 0 });
 
   const {
     inputValues: popupInputValues,
@@ -72,7 +73,7 @@ export const Home = () => {
       e.currentTarget.parentNode?.children,
     ).findIndex((el) => el === e.currentTarget);
     if (elementPosition == -1) return;
-    setActiveTabIndex(elementPosition);
+    setTabDetails((prev) => ({ active: elementPosition, last: prev.active }));
   };
   return (
     <Layout className={styles.main}>
@@ -88,19 +89,20 @@ export const Home = () => {
         <nav class={styles.tabs}>
           <ul>
             <Tab
-              underlineSlideDirection="left"
-              active={activeTabIndex() === GAME_GRID_INDEX}
+              index={0}
+              tabDetails={tabDetails}
               onClick={moveToTab}
               text="Create a game"
             />
             <Tab
-              underlineSlideDirection="right"
-              active={activeTabIndex() === GAME_LIST_INDEX}
+              index={1}
+              tabDetails={tabDetails}
               onClick={moveToTab}
               text="Join a game"
             />
             <Tab
-              active={activeTabIndex() === PLAY_ENGINE_INDEX}
+              index={2}
+              tabDetails={tabDetails}
               onClick={moveToTab}
               text="Play against engine"
             />
@@ -108,16 +110,16 @@ export const Home = () => {
         </nav>
         <div class={styles.content}>
           <GameGrid
-            active={activeTabIndex() === GAME_GRID_INDEX}
+            active={tabDetails.active === GAME_GRID_INDEX}
             createCustomGame={showPopup}
           />
-          <GameList active={activeTabIndex() === GAME_LIST_INDEX} />
+          <GameList active={tabDetails.active === GAME_LIST_INDEX} />
           <div
             class={[styles.tab_content, styles.play_engine_tab_content].join(
               " ",
             )}
             classList={{
-              inactive: activeTabIndex() != PLAY_ENGINE_INDEX,
+              inactive: tabDetails.active != PLAY_ENGINE_INDEX,
             }}
           >
             <FlatBtn
